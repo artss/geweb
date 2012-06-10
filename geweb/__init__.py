@@ -3,10 +3,13 @@ import gevent
 from gevent import http
 
 import settings
+
 from geweb import log
+from geweb.route import route
 
 def handler(r):
-    pass
+    print '-- handler'
+    return route(r)
 
 def run_server():
     log.info('Starting HTTP server at %s:%d' % settings.server_addr)
