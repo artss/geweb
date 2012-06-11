@@ -26,6 +26,11 @@ def handler(http_request):
     if isinstance(response, (str, unicode)):
         response = Response(response)
 
+    cookies = response.cookie_out()
+    for c in cookies:
+        print 'Set-Cookie:', c
+        http_request.add_output_header('Set-Cookie', c)
+
     http_request.add_output_header("Content-Type", response.mimetype)
     http_request.send_reply(code, message, response.body.encode('utf-8'))
 

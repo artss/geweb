@@ -2,7 +2,8 @@ import os
 import urlparse
 from cgi import FieldStorage
 from Cookie import Cookie
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 from hashlib import md5
 
 from geweb import log
@@ -20,8 +21,8 @@ class Request(object):
         self.path = path.path
 
         self._headers = {}
-        for hname, hvalue in http_request.get_input_headers():
-            self._headers[hname.lower()] = hvalue
+        for name, value in http_request.get_input_headers():
+            self._headers[name.lower()] = value
 
         self.host = self.header('Host')
 
@@ -102,9 +103,9 @@ class Request(object):
         except KeyError:
             return None
 
-    def header(self, hname):
+    def header(self, name):
         try:
-            return self._headers[hname.lower()]
+            return self._headers[name.lower()]
         except KeyError:
             return None
 
@@ -116,19 +117,38 @@ class Request(object):
 
 class Response(object):
 
-    def __init__(self, body, mimetype='text/html', headers={}):
+    def __init__(self, body=None, mimetype='text/html',
+                       redirect=None, headers={}):
         self.mimetype = mimetype
         self.body = body
         self._headers = headers
-        self._cookies = {}
+        self._cookies = Cookie()
 
-    def header(self, hname, hvalue):
-        self._headers[hname] = hvalue
+    def header(self, name, value):
+        self._headers[name] = value
 
     def set_cookie(self, name, value, domain=None, path=None, expires=None,
                          secure=False, httponly=False):
-        pass
+        self._cookies[name] = value
+        if domain:
+            self._cookies[name]['domain'] = domain
 
-    def delete_cookie(self, name):
-        pass
+        if path:
+            self._cookies[name]['path'] = path
+        if expires:
+            self._cookies[name]['expires'] = time.asctime(expires.timetuple())
+        if secure:
+            self._cookies[name]['secure'] = secure
+        if httponly:
+            self._cookies[name]['httponly'] = httponly
+
+    def delete_cookie(self, name, domain=None, path=None):
+        self.set_cookie(name, '', domain=domain, path=path,
+                                  expires=datetime.now()-timedelta(days=30))
+
+    def cookie_out(self):
+        out = []
+        for c in self._cookies:
+            out.append(self._cookies[c].output(header='').strip())
+        return out
 
