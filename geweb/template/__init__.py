@@ -1,6 +1,7 @@
 import os
 from jinja2 import Environment, PrefixLoader, FileSystemLoader
 
+from geweb.http import Response
 from geweb.template.filters import filters
 
 import settings
@@ -25,7 +26,10 @@ jinja_env = Environment(loader=PrefixLoader(_loaders),
 for name, fn in filters.iteritems():
     jinja_env.filters[name] = fn
 
-def render(name, **context):
+def render_string(name, **context):
     tmpl = jinja_env.get_template(name)
     return tmpl.render(context)
+
+def render(name, mimetype='text/html', **context):
+    return Response(render_string(name, **context), mimetype=mimetype)
 
