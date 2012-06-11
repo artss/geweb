@@ -35,7 +35,8 @@ class Request(object):
             clen = http_request.find_input_header('Content-Length')
 
             if ctype == 'application/x-www-form-urlencoded':
-                self._args = urlparse.parse_qs(http_request.input_buffer.read())
+                self._args = urlparse.parse_qs(
+                                    http_request.input_buffer.read())
 
             elif ctype.startswith('multipart/form-data'):
                 form = FieldStorage(fp=http_request.input_buffer,

@@ -23,7 +23,7 @@ def run_server():
     log.info('Starting HTTP server at %s:%d' % settings.server_addr)
 
     httpd = ghttp.HTTPServer(settings.server_addr,
-                            lambda req: gevent.spawn(handler, req))
+                             lambda req: gevent.spawn(handler, req))
     httpd.pre_start()
 
     for i in xrange(settings.workers - 1):
