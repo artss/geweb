@@ -30,7 +30,10 @@ class Request(object):
         self._args = {}
         self._files = {}
 
-        if self.method in ('POST', 'PUT'):
+        if self.method == 'GET':
+            self._args = urlparse.parse_qs(path.query)
+
+        elif self.method in ('POST', 'PUT'):
             ctype = http_request.find_input_header('Content-Type')
             clen = http_request.find_input_header('Content-Length')
 
@@ -79,8 +82,6 @@ class Request(object):
                                   (self._files[f], e.strerror))
 
                 del form
-        elif self.method == 'GET':
-            self._args = urlparse.parse_qs(path.query)
 
         self._headers = {}
         for hname, hvalue in http_request.get_input_headers():
