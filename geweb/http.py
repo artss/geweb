@@ -1,6 +1,7 @@
 import os
 import urlparse
 from cgi import FieldStorage
+from Cookie import Cookie
 from datetime import datetime
 from hashlib import md5
 
@@ -87,6 +88,8 @@ class Request(object):
 
                 del form
 
+        self._cookies = Cookie(self.header('Cookie'))
+
     def args(self, arg, default=None):
         try:
             return self._args[arg]
@@ -104,4 +107,28 @@ class Request(object):
             return self._headers[hname.lower()]
         except KeyError:
             return None
+
+    def cookie(self, name, default):
+        try:
+            return self._cookies[name].value
+        except KeyError:
+            return default
+
+class Response(object):
+
+    def __init__(self, body, mimetype='text/html', headers={}):
+        self.mimetype = mimetype
+        self.body = body
+        self._headers = headers
+        self._cookies = {}
+
+    def header(self, hname, hvalue):
+        self._headers[hname] = hvalue
+
+    def set_cookie(self, name, value, domain=None, path=None, expires=None,
+                         secure=False, httponly=False):
+        pass
+
+    def delete_cookie(self, name):
+        pass
 

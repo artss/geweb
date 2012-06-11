@@ -5,19 +5,29 @@ from gevent import http as ghttp
 import settings
 
 from geweb import log
-from geweb.http import Request
+from geweb.http import Request, Response
 from geweb.route import route
 from geweb.exceptions import HTTPError
 
 def handler(http_request):
     request = Request(http_request)
 
-    log.info('%s %s' % (request.method, request.uri))
-
     try:
         response = route(request)
-    except HTTPError:
-        pass
+        message = 'OK'
+        code = 200
+    except HTTPError, e:
+        response = e.message
+        message = e.message
+        code = e.code
+
+    log.info('%s %d %s' % (request.method, code, request.uri))
+
+    if isinstance(response, (str, unicode)):
+        response = Response(response)
+
+    http_request.add_output_header("Content-Type", response.mimetype)
+    http_request.send_reply(code, message, response.body.encode('utf-8'))
 
 def run_server():
     log.info('Starting HTTP server at %s:%d' % settings.server_addr)

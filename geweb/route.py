@@ -11,15 +11,14 @@ import settings
 urls_list = []
 
 for app in settings.apps:
-    urls = __import__("apps.%s.urls" % app, globals(), locals(), 'urls', -1)
+    urls = __import__("%s.urls" % app, globals(), locals(), 'urls', -1)
     for regex, view in urls.urls:
         urls_list.append((re.compile(regex), view))
 
 def route(request):
     for regex, view in urls_list:
-        m = re.match(regex, '/foo')
+        m = re.match(regex, request.path)
         if m:
-            log.debug('>>> %s -> %s' % (regex.pattern, m.groupdict()))
             return view(request, **m.groupdict())
 
     raise NotFound
