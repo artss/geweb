@@ -1,21 +1,29 @@
 import os
 import gevent
-from gevent import http
+from gevent import http as ghttp
 
 import settings
 
 from geweb import log
+from geweb.http import Request
 from geweb.route import route
+from geweb.exceptions import HTTPError
 
-def handler(r):
-    print '-- handler'
-    return route(r)
+def handler(http_request):
+    request = Request(http_request)
+
+    log.info('%s %s' % (request.method, request.uri))
+
+    try:
+        response = route(request)
+    except HTTPError:
+        pass
 
 def run_server():
     log.info('Starting HTTP server at %s:%d' % settings.server_addr)
 
-    httpd = http.HTTPServer(settings.server_addr,
-                            lambda r: gevent.spawn(handler, r))
+    httpd = ghttp.HTTPServer(settings.server_addr,
+                            lambda req: gevent.spawn(handler, req))
     httpd.pre_start()
 
     for i in xrange(settings.workers - 1):
