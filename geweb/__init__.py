@@ -28,7 +28,6 @@ def handler(http_request):
 
     cookies = response.cookie_out()
     for c in cookies:
-        print 'Set-Cookie:', c
         http_request.add_output_header('Set-Cookie', c)
 
     http_request.add_output_header("Content-Type", response.mimetype)
