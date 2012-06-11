@@ -9,6 +9,8 @@ loglevel = 'debug'
 
 apps = []
 
+template_path = 'templates'
+
 try:
     from settings_local import *
 except ImportError:
