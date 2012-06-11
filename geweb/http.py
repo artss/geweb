@@ -30,6 +30,8 @@ class Request(object):
                            http_request.remote_host
         self.remote_port = http_request.remote_port
 
+        self.user_agent = self.header('User-Agent')
+
         self.referer = self.header('Referer')
         self.is_xhr = self.header('X-Requested-With') == 'XMLHttpRequest'
 
