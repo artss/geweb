@@ -18,15 +18,19 @@ class Request(object):
         path = urlparse.urlparse(self.uri)
         self.path = path.path
 
-        self.host = http_request.find_input_header('Host')
+        self._headers = {}
+        for hname, hvalue in http_request.get_input_headers():
+            self._headers[hname.lower()] = hvalue
 
-        self.remote_host = http_request.find_input_header('X-Forwarded-For') \
-                           or http_request.remote_host
+        self.host = self.header('Host')
+
+        self.remote_host = self.header('X-Forwarded-For') or \
+                           http_request.remote_host
         self.remote_port = http_request.remote_port
 
-        self.referer = http_request.find_input_header('Referer')
-        self.is_xhr = http_request.find_input_header('X-Requested-With') \
-                      == 'XMLHttpRequest'
+        self.referer = self.header('Referer')
+        self.is_xhr = self.header('X-Requested-With') == 'XMLHttpRequest'
+
         self._args = {}
         self._files = {}
 
@@ -82,10 +86,6 @@ class Request(object):
                                   (self._files[f], e.strerror))
 
                 del form
-
-        self._headers = {}
-        for hname, hvalue in http_request.get_input_headers():
-            self._headers[hname.lower()] = hvalue
 
     def args(self, arg, default=None):
         try:
