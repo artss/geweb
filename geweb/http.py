@@ -124,6 +124,8 @@ class Response(object):
         self._headers = headers
         self._cookies = Cookie()
 
+        self._redirect = redirect
+
     def header(self, name, value):
         self._headers[name] = value
 
@@ -151,4 +153,9 @@ class Response(object):
         for c in self._cookies:
             out.append(self._cookies[c].output(header='').strip())
         return out
+
+    def redirect(self, url=None):
+        if url is None:
+            return self._redirect
+        self._redirect = url
 

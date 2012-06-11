@@ -30,8 +30,14 @@ def handler(http_request):
     for c in cookies:
         http_request.add_output_header('Set-Cookie', c)
 
-    http_request.add_output_header("Content-Type", response.mimetype)
-    http_request.send_reply(code, message, response.body.encode('utf-8'))
+    redirect = response.redirect()
+    if redirect:
+        http_request.add_output_header('Location', redirect)
+        http_request.send_reply(302, 'Moved Temporarily',
+                                str('redirect %s' % redirect))
+    else:
+        http_request.add_output_header("Content-Type", response.mimetype)
+        http_request.send_reply(code, message, response.body.encode('utf-8'))
 
 def run_server():
     log.info('Starting HTTP server at %s:%d' % settings.server_addr)
