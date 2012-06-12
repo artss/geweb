@@ -47,6 +47,14 @@ class Session(object):
         except KeyError:
             return None
 
+    def __delitem__(self, item):
+        if not self._data and self.sessid:
+            self._data = self.backend.get()
+        try:
+            del self._data[item]
+        except KeyError:
+            pass
+
     def new(self):
         """
         Force start a new session.
