@@ -1,18 +1,25 @@
+# HTTP server workers quantity
 workers = 2
 
+# Server host and port tuple
 server_addr = ('127.0.0.1', 8000)
 
+# Logger settings
 logger = 'geweb'
 logformat = u'%(asctime)s %(process)d %(filename)s:%(lineno)d:%(funcName)s %(levelname)s  %(message)s'
 logfile = None
 loglevel = 'debug'
 
-domain = None
+# Domain
+domain = 'example.com'
 
+# Enabled applications list.
 apps = []
 
+# Path to templates
 template_path = 'templates'
 
+# Debug
 debug = False
 
 # File sessions
@@ -27,6 +34,7 @@ debug = False
 session_cookie = 'sessid'
 session_expires = 30 # days
 
+# Override settings by settings_local
 try:
     from settings_local import *
 except ImportError:

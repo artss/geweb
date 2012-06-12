@@ -14,7 +14,10 @@ from geweb.exceptions import HTTPError, InternalServerError
 from geweb.template import render, TemplateNotFound
 from geweb.env import env
 
-def handler(http_request):
+def _handler(http_request):
+    """
+    HTTP request handler.
+    """
     env.request = Request(http_request)
 
     try:
@@ -64,10 +67,13 @@ def handler(http_request):
         http_request.send_reply(code, message, response.body.encode('utf-8'))
 
 def run_server():
+    """
+    Start the HTTP server.
+    """
     log.info('Starting HTTP server at %s:%d' % settings.server_addr)
 
     httpd = ghttp.HTTPServer(settings.server_addr,
-                             lambda req: gevent.spawn(handler, req))
+                             lambda req: gevent.spawn(_handler, req))
     httpd.pre_start()
 
     for i in xrange(settings.workers - 1):

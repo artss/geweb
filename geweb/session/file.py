@@ -8,6 +8,9 @@ from geweb import log
 import settings
 
 class FileBackend(SessionBackend):
+    """
+    Local files session storage.
+    """
     def __init__(self, sessid):
         try:
             path = settings.session_dir

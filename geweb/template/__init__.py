@@ -28,9 +28,21 @@ for name, fn in filters.iteritems():
     jinja_env.filters[name] = fn
 
 def render_string(name, **context):
+    """
+    Render a string from template.
+
+    Usage:
+    string = render_string('template.html', var1='value 1', var2='value 2')
+    """
     tmpl = jinja_env.get_template(name)
     return tmpl.render(context, settings=settings)
 
 def render(name, mimetype='text/html', **context):
+    """
+    Render HTTP response from template.
+
+    Usage:
+    response = render('template.html', var1='value 1', var2='value 2')
+    """
     return Response(render_string(name, **context), mimetype=mimetype)
 

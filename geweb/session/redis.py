@@ -8,6 +8,9 @@ from geweb import log
 import settings
 
 class RedisBackend(SessionBackend):
+    """
+    Redis session storage.
+    """
     def __init__(self, sessid):
         try:
             addr = settings.session_dir
