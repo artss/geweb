@@ -12,8 +12,9 @@ class FileBackend(SessionBackend):
             path = settings.session_dir
         except AttributeError:
             path = '/tmp'
+
         self.filename = os.path.join(path, 'geweb-session.%s' % sessid)
-        print 'FileBackend:', self.filename
+        log.debug('FileBackend: %s' % self.filename)
 
     def get(self):
         fd = open(self.filename)
