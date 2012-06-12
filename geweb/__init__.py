@@ -35,8 +35,7 @@ def handler(http_request):
         message = InternalServerError.message
         if settings.debug:
             response = render('/50x.debug.html', code=code, message=message,
-                              trace=traceback.format_exc(),
-                              locals=locals(), globals=globals())
+                              trace=traceback.format_exc())
         else:
             response = render('/50x.html', code=code, message=message)
 

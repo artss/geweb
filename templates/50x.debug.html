@@ -15,21 +15,5 @@
 
         <h2>Traceback</h2>
         <pre>{{ trace }}</pre>
-
-        <h2>Local variables</h2>
-        {% for var in locals|dictsort %}
-            <div class="row">
-                <div class="label">{{ var[0] }}</div>
-                <div class="value">{{ var[1] }}</div>
-            </div>
-        {% endfor %}
-
-        <h2>Global variables</h2>
-        {% for var in globals|dictsort %}
-            <div class="row">
-                <div class="label">{{ var[0] }}</div>
-                <div class="value">{{ var[1] }}</div>
-            </div>
-        {% endfor %}
     </body>
 </html>
