@@ -15,11 +15,11 @@ for app in settings.apps:
     for regex, view in urls.urls:
         urls_list.append((re.compile(regex), view))
 
-def route(request):
+def route(path):
     for regex, view in urls_list:
-        m = re.match(regex, request.path)
+        m = re.match(regex, path)
         if m:
-            return view(request, **m.groupdict())
+            return view(**m.groupdict())
 
     raise NotFound
 

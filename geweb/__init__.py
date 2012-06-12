@@ -12,14 +12,15 @@ from geweb.http import Request, Response
 from geweb.route import route
 from geweb.exceptions import HTTPError, InternalServerError
 from geweb.template import render, TemplateNotFound
+from geweb.env import env
 
 def handler(http_request):
-    request = Request(http_request)
+    env.request = Request(http_request)
 
     try:
         code = 200
         message = 'OK'
-        response = route(request)
+        response = route(env.request.path)
 
     except HTTPError, e:
         code = e.code
@@ -39,7 +40,7 @@ def handler(http_request):
         else:
             response = render('/50x.html', code=code, message=message)
 
-    log.info('%s %d %s' % (request.method, code, request.uri))
+    log.info('%s %d %s' % (env.request.method, code, env.request.uri))
 
     if isinstance(response, (str, unicode)):
         response = Response(response)
