@@ -15,7 +15,15 @@ template_path = 'templates'
 
 debug = False
 
+# File sessions
 #session_backend = 'geweb.session.file.FileBackend'
+#session_dir = '/tmp'
+
+# Redis sessions
+#session_backend = 'geweb.session.redis.RedisBackend'
+#session_socket = 'tcp://127.0.0.1:6379'
+#session_db = 0
+
 session_cookie = 'sessid'
 session_expires = 30 # days
 

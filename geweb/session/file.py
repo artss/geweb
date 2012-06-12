@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import datetime
 
 from geweb.session import SessionBackend
 from geweb import log
@@ -18,13 +19,18 @@ class FileBackend(SessionBackend):
 
     def get(self):
         fd = open(self.filename)
-        data = json.loads(fd.read())
+        try:
+            data = json.loads(fd.read())
+        except ValueError:
+            data = {}
         fd.close()
         return data
 
     def save(self, data):
+        dthandler = lambda obj: obj.isoformat() \
+                                if isinstance(obj, datetime) else None
         fd = open(self.filename, 'w')
-        fd.write(json.dumps(data))
+        fd.write(json.dumps(data, default=dthandler))
         fd.close()
 
     def destroy(self):
