@@ -7,6 +7,7 @@ import time
 from hashlib import md5
 
 from geweb import log
+from geweb.env import env
 
 import settings
 
@@ -111,7 +112,7 @@ class Request(object):
         except KeyError:
             return None
 
-    def cookie(self, name, default):
+    def cookie(self, name, default=None):
         try:
             return self._cookies[name].value
         except KeyError:
@@ -160,4 +161,16 @@ class Response(object):
         if url is None:
             return self._redirect
         self._redirect = url
+
+def wrap_response(fn):
+    try:
+        env.response_wrappers.append(fn)
+    except KeyError:
+        env.response_wrappers = [fn]
+
+def response_wrappers():
+    try:
+        return env.response_wrappers
+    except KeyError:
+        return []
 

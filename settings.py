@@ -7,11 +7,17 @@ logformat = u'%(asctime)s %(process)d %(filename)s:%(lineno)d:%(funcName)s %(lev
 logfile = None
 loglevel = 'debug'
 
+domain = None
+
 apps = []
 
 template_path = 'templates'
 
 debug = False
+
+#session_backend = 'geweb.session.file.FileBackend'
+session_cookie = 'sessid'
+session_expires = 30 # days
 
 try:
     from settings_local import *
