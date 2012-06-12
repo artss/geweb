@@ -4,22 +4,41 @@ from gevent import http as ghttp
 
 import settings
 
+if settings.debug:
+    import traceback
+
 from geweb import log
 from geweb.http import Request, Response
 from geweb.route import route
-from geweb.exceptions import HTTPError
+from geweb.exceptions import HTTPError, InternalServerError
+from geweb.template import render, TemplateNotFound
 
 def handler(http_request):
     request = Request(http_request)
 
     try:
-        response = route(request)
-        message = 'OK'
         code = 200
+        message = 'OK'
+        response = route(request)
+
     except HTTPError, e:
-        response = e.message
-        message = e.message
         code = e.code
+        message = e.message
+
+        try:
+            response = render('/%d.html' % code, code=code, message=message)
+        except TemplateNotFound, e:
+            response = render('/50x.html', code=code, message=message)
+
+    except Exception, e:
+        code = InternalServerError.code
+        message = InternalServerError.message
+        if settings.debug:
+            response = render('/50x.debug.html', code=code, message=message,
+                              trace=traceback.format_exc(),
+                              locals=locals(), globals=globals())
+        else:
+            response = render('/50x.html', code=code, message=message)
 
     log.info('%s %d %s' % (request.method, code, request.uri))
 

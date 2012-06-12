@@ -1,0 +1,18 @@
+<h1>{{ code }} {{ message }}</h1>
+
+<h2>Traceback</h2>
+<pre>{{ trace }}</h1>
+
+<h2>Local variables</h2>
+<ul>
+{% for var in locals|dictsort %}
+<li>{{ var }}</li>
+{% endfor %}
+</ul>
+
+<h2>Global variables</h2>
+<ul>
+{% for var in globals|dictsort %}
+<li>{{ var }}</li>
+{% endfor %}
+</ul>

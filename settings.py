@@ -11,6 +11,8 @@ apps = []
 
 template_path = 'templates'
 
+debug = False
+
 try:
     from settings_local import *
 except ImportError:

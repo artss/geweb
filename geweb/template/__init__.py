@@ -1,5 +1,6 @@
 import os
 from jinja2 import Environment, PrefixLoader, FileSystemLoader
+from jinja2 import TemplateNotFound
 
 from geweb.http import Response
 from geweb.template.filters import filters
@@ -28,7 +29,7 @@ for name, fn in filters.iteritems():
 
 def render_string(name, **context):
     tmpl = jinja_env.get_template(name)
-    return tmpl.render(context)
+    return tmpl.render(context, settings=settings)
 
 def render(name, mimetype='text/html', **context):
     return Response(render_string(name, **context), mimetype=mimetype)
