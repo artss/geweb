@@ -34,6 +34,15 @@ debug = False
 session_cookie = 'sessid'
 session_expires = 30 # days
 
+# SMTP settings
+#smtp_from = 'geweb@example.com'
+#smtp_host = 'mail.example.com'
+#smtp_port = 25
+
+#smtp_auth_required = True
+#smtp_login = ''
+#smtp_password = ''
+
 # Override settings by settings_local
 try:
     from settings_local import *
