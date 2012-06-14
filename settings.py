@@ -6,9 +6,9 @@ server_addr = ('127.0.0.1', 8000)
 
 # Logger settings
 logger = 'geweb'
-logformat = u'%(asctime)s %(process)d %(filename)s:%(lineno)d:%(funcName)s %(levelname)s  %(message)s'
-logfile = None
-loglevel = 'debug'
+logformat = u'%(asctime)s %(process)d %(filename)s:%(lineno)d:%(funcName)s %(levelname)s  %(message)s' # See help(logging) for details
+logfile = None # Path to log file. If None, will log will be written in stdout.
+loglevel = 'debug' # error | warn | info | debug
 
 # Domain
 domain = 'example.com'
