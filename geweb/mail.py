@@ -8,11 +8,10 @@ from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 
 from geweb import log
-from geweb.template import render_string
 
 import settings
 
-def mail(to, subject='', body=None, template=None, html=False, \
+def mail(to, body, subject='', template=None, html=False, \
          attachments=None, **context):
     smtp = smtplib.SMTP(settings.smtp_host, port=settings.smtp_port)
     smtp.ehlo()
@@ -21,9 +20,6 @@ def mail(to, subject='', body=None, template=None, html=False, \
         smtp.starttls()
         smtp.ehlo()
         smtp.login(settings.smtp_login, settings.smtp_password)
-
-    if template:
-        body = render_string(template, **context)
 
     if attachments:
         msg = MIMEMultipart()
