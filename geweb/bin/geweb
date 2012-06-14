@@ -2,13 +2,15 @@
 
 import os
 import sys
-from geweb import log
-from geweb import run_server
 
 try:
     import settings
 except ImportError:
     print "Cannot find settings.py in %r." % os.getcwd()
+    sys.exit(1)
+
+from geweb import log
+from geweb import run_server
 
 if __name__ == '__main__':
     try:
