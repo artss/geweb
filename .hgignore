@@ -1,6 +1,5 @@
 .*\.pyc
-.*settings_local.py
 venv/
 .idea/
-static/
-apps/foo
+dist/
+.*\.egg-info/
