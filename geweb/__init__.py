@@ -7,6 +7,7 @@ import settings
 
 if settings.debug:
     import traceback
+    from time import time
 
 from geweb import log
 from geweb.http import Request, Response, response_wrappers
@@ -19,6 +20,10 @@ def _handler(http_request):
     """
     HTTP request handler.
     """
+
+    if settings.debug:
+        tm = time()
+
     env.request = Request(http_request)
 
     try:
@@ -44,8 +49,6 @@ def _handler(http_request):
         else:
             response = render('/50x.html', code=code, message=message)
 
-    log.info('%s %d %s' % (env.request.method, code, env.request.uri))
-
     if isinstance(response, (str, unicode)):
         response = Response(response)
     elif response is None:
@@ -66,6 +69,14 @@ def _handler(http_request):
     else:
         http_request.add_output_header("Content-Type", response.mimetype)
         http_request.send_reply(code, message, response.body.encode('utf-8'))
+
+    if settings.debug:
+        tm = round(time() - tm, 4)
+    else:
+        tm = ''
+
+    log.info('%s %s %s %d %s' % (tm, env.request.remote_host,
+                              env.request.method, code, env.request.uri))
 
 def run_server():
     """
