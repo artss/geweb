@@ -96,6 +96,8 @@ class Request(object):
 
     def args(self, arg, default=None):
         try:
+            if len(self._args[arg]) == 1:
+                return self._args[arg][0]
             return self._args[arg]
         except KeyError:
             return default
