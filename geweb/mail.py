@@ -13,6 +13,13 @@ import settings
 
 def mail(to, body, subject='', template=None, html=False, \
          attachments=None, **context):
+    """
+    E-mail sender.
+
+    Required settings: smtp_host, smtp_port, smtp_from, smtp_auth_required.
+    If smtp_auth_required is set to true, you should also define
+    smtp_login and smtp_password.
+    """
     smtp = smtplib.SMTP(settings.smtp_host, port=settings.smtp_port)
     smtp.ehlo()
 
