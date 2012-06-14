@@ -1,1 +1,3 @@
-graft geweb/data
+include README.md
+include LICENSE
+recursive-include geweb/data *
