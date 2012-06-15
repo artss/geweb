@@ -78,13 +78,45 @@ def _handler(http_request):
     log.info('%s %s %s %d %s' % (tm, env.request.remote_host,
                               env.request.method, code, env.request.uri))
 
-def run_server():
+def run_server(host=None, port=None, workers=None, debug=None,
+               logfile=None, stdout=None, loglevel=None):
     """
     Start the HTTP server.
+    Optional arguments, which override settings:
+    host - host (IP address) to listen
+    port - port number to listen
+    worker - number of worker processes
+    debug - debug mode
+    logfile - path to log file
+    stdout - write log to stdout instead of log file
+    loglevel - log level
     """
-    log.info('Starting HTTP server at %s:%d' % settings.server_addr)
 
-    httpd = ghttp.HTTPServer(settings.server_addr,
+    if stdout:
+        settings.logfile = None
+    elif logfile:
+        settings.logfile = logfile
+
+    if loglevel:
+        settings.loglevel = loglevel
+
+    log.init()
+
+    if host is not None:
+        settings.server_host = host
+    if port is not None:
+        settings.server_port = port
+
+    if workers is not None:
+        settings.workers = workers
+
+    if debug:
+        settings.debug = True
+
+    log.info('Starting HTTP server at %s:%d' % \
+             (settings.server_host, settings.server_port))
+
+    httpd = ghttp.HTTPServer((settings.server_host, settings.server_port),
                              lambda req: gevent.spawn(_handler, req))
     httpd.pre_start()
 
@@ -97,6 +129,7 @@ def run_server():
         log.info('Starting worker PID=%d' % os.getpid())
         httpd.serve_forever()
     except Exception, e:
-        log.error("%s: %s" % (e.__class__.__name__, str(e)))
+        log.error('%s: %s' % (e.__class__.__name__, str(e)))
         httpd.stop()
+        log.error('Worker PID=%d is stopped' % os.getpid())
 

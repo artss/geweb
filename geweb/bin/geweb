@@ -2,20 +2,81 @@
 
 import os
 import sys
+from argparse import ArgumentParser
 
-try:
-    import settings
-except ImportError:
-    print "Cannot find settings.py in %r." % os.getcwd()
+sys.path.insert(0, os.getcwd())
+
+def die(message):
+    sys.stderr.write("%s\n" % message)
     sys.exit(1)
 
-from geweb import log
-from geweb import run_server
+def run(args):
+    try:
+        import settings
+    except ImportError:
+        die('Cannot import settings.py in %r.' % os.getcwd())
+
+    if args.level and args.level not in ['error', 'warn', 'info', 'debug']:
+        die('Invalid log level: %s' % args.level)
+
+    if args.listen:
+        addr = args.listen.rsplit(':', 1)
+        if len(addr) == 2:
+            host = addr[0]
+            try:
+                port = int(addr[1])
+            except ValueError:
+                die('Invalid address: %s' % args.listen)
+        else:
+            try:
+                host = None
+                port = int(args.listen)
+            except ValueError:
+                host = args.listen
+                port = None
+    else:
+        host, port = None, None
+
+    from geweb import run_server
+    run_server(host, port, args.workers, args.debug,
+               args.log, args.stdout, args.level)
+
+def init(args):
+    print 'Creating new project %s' % args.project_name
 
 if __name__ == '__main__':
-    try:
-        run_server()
-    except KeyboardInterrupt:
-        log.info('Server is stopped')
-        sys.exit()
+    parser = ArgumentParser(description='Geweb command line tool',
+                            add_help=False)
+    subparsers = parser.add_subparsers(help='List of commands')
+
+    run_parser = subparsers.add_parser('run', help='Run server')
+    run_parser.add_argument('-l', '--listen', type=str,
+                            help='Address/port to listen [127.0.0.1:8000]')
+    run_parser.add_argument('-w', '--workers', type=int,
+                            help='Worker processes')
+    run_parser.add_argument('-d', '--debug',
+                            action='store_const', dest='debug', const=True,
+                            help='Enable debug mode.')
+    run_parser.add_argument('-D', '--no-debug',
+                            action='store_const', dest='debug', const=False,
+                            help='Disable debug mode')
+    run_parser.add_argument('--log', help='Path to log file')
+    run_parser.add_argument('-o', '--stdout', action='store_const',
+                            dest='stdout', const=True,
+                            help='Write log to stdout instead of log file')
+    run_parser.add_argument('--level',
+                            help='Log level [error, warn, info, debug]')
+    run_parser.set_defaults(func=run)
+
+    init_parser = subparsers.add_parser('init', help='Init a new project')
+    init_parser.add_argument('project_name', type=str, help='Project name')
+    init_parser.set_defaults(func=init)
+
+    args = parser.parse_args()
+    args.func(args)
+
+    #if hasattr(args, 'port'):
+    #    run(args.port, args.workers, args.debug, args.log, args.level)
+    #elif hasattr(args, 'project_name'):
+    #    init(args.project_name)
 

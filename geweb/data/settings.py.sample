@@ -1,8 +1,9 @@
 # HTTP server workers quantity
-workers = 2
+workers = 1
 
-# Server host and port tuple
-server_addr = ('127.0.0.1', 8000)
+# Server host and port
+server_host = '127.0.0.1'
+server_port = 8000
 
 # Logger settings
 logger = 'geweb'
