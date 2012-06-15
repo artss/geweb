@@ -31,7 +31,7 @@ def init(args):
         die('Cannot create settings.py')
 
     try:
-        os.mkdir(os.path.exists(project_dir, 'templates'))
+        os.mkdir(os.path.join(project_dir, 'templates'))
     except (IOError, OSError):
         die('Cannot create templates directory')
 
