@@ -6,43 +6,7 @@ from argparse import ArgumentParser
 
 sys.path.insert(0, os.getcwd())
 
-def die(message):
-    sys.stderr.write("%s\n" % message)
-    sys.exit(1)
-
-def run(args):
-    try:
-        import settings
-    except ImportError:
-        die('Cannot import settings.py in %r.' % os.getcwd())
-
-    if args.level and args.level not in ['error', 'warn', 'info', 'debug']:
-        die('Invalid log level: %s' % args.level)
-
-    if args.listen:
-        addr = args.listen.rsplit(':', 1)
-        if len(addr) == 2:
-            host = addr[0]
-            try:
-                port = int(addr[1])
-            except ValueError:
-                die('Invalid address: %s' % args.listen)
-        else:
-            try:
-                host = None
-                port = int(args.listen)
-            except ValueError:
-                host = args.listen
-                port = None
-    else:
-        host, port = None, None
-
-    from geweb import run_server
-    run_server(host, port, args.workers, args.debug,
-               args.log, args.stdout, args.level)
-
-def init(args):
-    print 'Creating new project %s' % args.project_name
+from geweb.commands import init, run
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Geweb command line tool',
@@ -74,9 +38,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     args.func(args)
-
-    #if hasattr(args, 'port'):
-    #    run(args.port, args.workers, args.debug, args.log, args.level)
-    #elif hasattr(args, 'project_name'):
-    #    init(args.project_name)
 

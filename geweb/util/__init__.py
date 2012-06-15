@@ -1,3 +1,4 @@
+import sys
 import time
 
 class Singleton(object):
@@ -32,3 +33,8 @@ def parse_email(address):
 
 def timestamp(d):
     return time.mktime(d.timetuple())
+
+def die(message):
+    sys.stderr.write("%s\n" % message)
+    sys.exit(1)
+
