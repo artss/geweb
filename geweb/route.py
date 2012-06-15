@@ -16,10 +16,17 @@ for app in settings.apps:
         urls_list.append((re.compile(regex), view))
 
 def route(path):
+    if not urls_list:
+        return welcome()
+
     for regex, view in urls_list:
         m = re.match(regex, path)
         if m:
             return view(**m.groupdict())
 
     raise NotFound
+
+def welcome():
+    from geweb.template import render
+    return render('geweb/welcome.html')
 
