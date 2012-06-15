@@ -35,15 +35,16 @@ def _handler(http_request):
         message = e.message
 
         try:
-            response = render('/%d.html' % code, code=code, message=message)
+            response = render(['/%d.html'%code,'/50x.html', 'geweb/50x.html'],
+                              code=code, message=message)
         except TemplateNotFound, e:
-            response = render('/50x.html', code=code, message=message)
+            response = 'No error template found'
 
     except Exception, e:
         code = InternalServerError.code
         message = InternalServerError.message
         if settings.debug:
-            response = render('/50x.debug.html', code=code, message=message,
+            response = render('geweb/debug.html', code=code, message=message,
                               trace=traceback.format_exc())
         else:
             response = render('/50x.html', code=code, message=message)

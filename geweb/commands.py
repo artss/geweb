@@ -31,11 +31,9 @@ def init(args):
         die('Cannot create settings.py')
 
     try:
-        template_src = os.path.join(data_dir, 'templates')
-        template_dir = os.path.join(project_dir, 'templates')
-        shutil.copytree(template_src, template_dir)
+        os.mkdir(os.path.exists(project_dir, 'templates'))
     except (IOError, OSError):
-        die('Cannot create templates')
+        die('Cannot create templates directory')
 
     print ''
     print 'Project is created. Now you may go to the project directory and run'

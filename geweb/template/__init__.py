@@ -5,9 +5,18 @@ from jinja2 import TemplateNotFound
 from geweb.http import Response
 from geweb.template.filters import filters
 
+from geweb.env import env
+
 import settings
 
-_loaders = {'': FileSystemLoader(settings.template_path)}
+geweb_template_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                   '..', 'data', 'templates'))
+print '>>>', geweb_template_path
+
+_loaders = {
+    '': FileSystemLoader(settings.template_path),
+    'geweb': FileSystemLoader(geweb_template_path),
+}
 
 for appname in settings.apps:
     app = __import__(appname, globals(), locals(), [appname, 'filters'], -1)
@@ -27,22 +36,31 @@ jinja_env = Environment(loader=PrefixLoader(_loaders),
 for name, fn in filters.iteritems():
     jinja_env.filters[name] = fn
 
-def render_string(name, **context):
+def render_string(names, **context):
     """
     Render a string from template.
 
     Usage:
     string = render_string('template.html', var1='value 1', var2='value 2')
     """
-    tmpl = jinja_env.get_template(name)
-    return tmpl.render(context, settings=settings)
+    if isinstance(names, (str, unicode)):
+        names = [names]
 
-def render(name, mimetype='text/html', **context):
+    for name in names:
+        try:
+            tmpl = jinja_env.get_template(name)
+            return tmpl.render(context, settings=settings, env=env)
+        except TemplateNotFound:
+            continue
+
+    raise TemplateNotFound('')
+
+def render(names, mimetype='text/html', **context):
     """
     Render HTTP response from template.
 
     Usage:
     response = render('template.html', var1='value 1', var2='value 2')
     """
-    return Response(render_string(name, **context), mimetype=mimetype)
+    return Response(render_string(names, **context), mimetype=mimetype)
 
