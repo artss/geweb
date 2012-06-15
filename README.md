@@ -1,28 +1,29 @@
 Geweb is an asyncronous python/gevent web framework.
 
-== Installation ==
+Installation
+------------
 
     pip install hg+https://bitbucket.org/arts/geweb
 
-== Create project ==
+Create project
+--------------
 
     geweb init myproject
 
-== Run server ==
+Run server
+----------
 
     cd myproject
-
     geweb run
 
-== App structure ==
+App structure
+-------------
 
-{{{
-|- myproject
-    |- myapp
-        |- templates/
-            |- tmpl1.html
-            |- tmpl2.html
-            |- ...
-        |- __init__.py
-        |- urls.py
-}}}
+    |- myproject
+        |- myapp
+            |- templates/
+                |- tmpl1.html
+                |- tmpl2.html
+                |- ...
+            |- __init__.py
+            |- urls.py
