@@ -16,6 +16,7 @@ Geweb is an asyncronous python/gevent web framework.
 
 == App structure ==
 
+{{{
 |- myproject
     |- myapp
         |- templates/
@@ -24,3 +25,4 @@ Geweb is an asyncronous python/gevent web framework.
             |- ...
         |- __init__.py
         |- urls.py
+}}}
