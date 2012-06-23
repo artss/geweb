@@ -12,6 +12,7 @@ class FileBackend(SessionBackend):
     Local files session storage.
     """
     def __init__(self, sessid):
+        self._loaded = False
         try:
             path = settings.session_dir
         except AttributeError:
@@ -21,12 +22,16 @@ class FileBackend(SessionBackend):
         log.debug('FileBackend: %s' % self.filename)
 
     def get(self):
-        fd = open(self.filename)
         try:
+            fd = open(self.filename)
             data = json.loads(fd.read())
-        except ValueError:
+        except (ValueError, IOError):
             data = {}
-        fd.close()
+        finally:
+            try:
+                fd.close()
+            except:
+                pass
         return data
 
     def save(self, data):
