@@ -46,7 +46,7 @@ class Request(object):
             ctype = http_request.find_input_header('Content-Type')
             clen = http_request.find_input_header('Content-Length')
 
-            if not ctype or ctype == 'application/x-www-form-urlencoded':
+            if not ctype or ctype.startswith('application/x-www-form-urlencoded'):
                 self._args = urlparse.parse_qs(
                                     http_request.input_buffer.read())
 
