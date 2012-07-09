@@ -21,7 +21,7 @@ setup(
     keywords = "web framework gevent jinja2",
     url = "http://bitbucket.org/arts/geweb",
     packages=["geweb", "geweb.template", "geweb.session", "geweb.util"],
-    install_requires=["gevent", "jinja2"],
+    install_requires=["gevent", "jinja2", "argparse"],
     scripts=["geweb/bin/geweb"],
     include_package_data=True,
 
