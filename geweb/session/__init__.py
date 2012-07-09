@@ -24,11 +24,14 @@ class Session(object):
     sess = Session()
     sess.destroy()
     """
-    def __init__(self):
+    def __init__(self, sessid=None):
         """
         Start a new session or use an existing one.
         """
-        self.sessid = env.request.cookie(settings.session_cookie)
+        if sessid:
+            self.sessid = sessid
+        else:
+            self.sessid = env.request.cookie(settings.session_cookie)
         self._data = {}
         if self.sessid:
             self.backend = backend_cls(self.sessid)
@@ -76,6 +79,8 @@ class Session(object):
             expires = datetime.now() + timedelta(days=settings.session_expires)
             response.set_cookie(settings.session_cookie, self.sessid,
                                 domain='.%s' % settings.domain, path='/',
+                                #secure=True,
+                                #httponly=True,
                                 expires=expires)
         wrap_response(set_cookie)
 
