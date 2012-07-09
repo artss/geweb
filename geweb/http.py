@@ -93,7 +93,8 @@ class Request(object):
                 del form
 
         self._cookies = Cookie(self.header('Cookie'))
-        log.debug('Cookies: %s' % (self._cookies))
+        for c, v in self._cookies.iteritems():
+            log.debug('Cookie: %s=%s' % (c, v.value))
 
     def args(self, arg, default=None):
         try:
@@ -158,7 +159,8 @@ class Response(object):
         out = []
         for c in self._cookies:
             out.append(self._cookies[c].output(header='').strip())
-        log.debug('Set-Cookies: %s' % (out))
+        if out:
+            log.debug('Set-Cookies: %s' % (out))
         return out
 
     def redirect(self, url=None):
