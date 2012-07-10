@@ -1,7 +1,10 @@
 import gevent
 from redis.client import Redis
 import hashlib
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 class RedisPool(Redis):
     __instances = {}

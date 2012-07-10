@@ -1,4 +1,7 @@
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from datetime import datetime
 
 from geweb.session import SessionBackend
