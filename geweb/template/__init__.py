@@ -11,8 +11,6 @@ import settings
 
 geweb_template_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                    '..', 'data', 'templates'))
-print '>>>', geweb_template_path
-
 _loaders = {
     '': FileSystemLoader(settings.template_path),
     'geweb': FileSystemLoader(geweb_template_path),
