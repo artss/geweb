@@ -8,8 +8,13 @@ server_port = 8000
 # Logger settings
 logger = 'geweb'
 logformat = u'%(asctime)s %(process)d %(filename)s:%(lineno)d:%(funcName)s %(levelname)s  %(message)s' # See help(logging) for details
-logfile = None # Path to log file. If None, will log will be written in stdout.
+logfile = None # Path to log file. If None, log will be written into stdout.
 loglevel = 'debug' # error | warn | info | debug
+#logrotate = 7 # Log rotation. Examples:
+               #    7 or '7d' -- rotate each 7 days.
+               #    '1h' -- rotate each 1 hour.
+               #    '15m' -- rotate each 15 minutes.
+#logcount = 0  # number of backup files to store.
 
 # Domain
 domain = 'example.com'

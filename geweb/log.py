@@ -1,4 +1,5 @@
 import logging
+from logging.handlers import TimedRotatingFileHandler
 
 import settings
 
@@ -25,6 +26,25 @@ debug = _log.debug
 def init():
     logging.basicConfig(format=format, filename=settings.logfile, level=level)
     _log = logging.getLogger(settings.logger)
+    if settings.logfile:
+        try:
+            interval = settings.logrotate
+            if isinstance(interval, str):
+                when = interval[-1]
+                interval = int(interval[:-1])
+            else:
+                when = 'midnight'
+
+            try:
+                count = settings.logcount
+            except AttributeError:
+                count = 0
+            handler = TimedRotatingFileHandler(settings.logfile,
+                                          when=when, interval=interval,
+                                          backupCount=count)
+            _log.addHandler(handler)
+        except AttributeError:
+            pass
 
     global info
     global error
