@@ -7,6 +7,8 @@ from geweb.template.filters import filters
 
 from geweb.env import env
 
+from datetime import datetime
+
 import settings
 
 geweb_template_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -47,7 +49,8 @@ def render_string(names, **context):
     for name in names:
         try:
             tmpl = jinja_env.get_template(name)
-            return tmpl.render(context, settings=settings, env=env)
+            return tmpl.render(context, settings=settings, env=env,
+                               __now__=datetime.now())
         except TemplateNotFound:
             continue
 
