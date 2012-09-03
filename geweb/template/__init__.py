@@ -7,6 +7,8 @@ from geweb.template.filters import filters
 
 from geweb.env import env
 
+from geweb.util import csrf_token
+
 from datetime import datetime
 
 import settings
@@ -50,7 +52,8 @@ def render_string(names, **context):
         try:
             tmpl = jinja_env.get_template(name)
             return tmpl.render(context, settings=settings, env=env,
-                               __now__=datetime.now())
+                               __now__=datetime.now(),
+                               csrf_token=csrf_token)
         except TemplateNotFound:
             continue
 

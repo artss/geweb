@@ -1,5 +1,11 @@
 import sys
 import time
+from hashlib import sha1
+from datetime import datetime
+from random import randint
+from geweb.session import Session
+from geweb.exceptions import Forbidden
+from geweb.env import env
 
 class Singleton(object):
     def __new__(cls, *args, **kwargs):
@@ -37,4 +43,30 @@ def timestamp(d):
 def die(message):
     sys.stderr.write("%s\n" % message)
     sys.exit(1)
+
+#CSRF decorator
+def csrf(fn):
+    def _fn(*args, **kwargs):
+        if env.request.method == 'GET':
+            csrf_token()
+        else:
+            sess = Session()
+            token = env.request.args('csrf_token')
+            if not token or sess['csrf_token'] != token:
+                del sess['csrf_token']
+                sess.save()
+                raise Forbidden
+        return fn(*args, **kwargs)
+    return _fn
+
+def csrf_token():
+    sess = Session()
+    token = sha1('%s%s%s' % (
+        datetime.now(),
+        randint(1000000, 9999999),
+        env.request.path
+    )).hexdigest()
+    sess['csrf_token'] = token
+    sess.save()
+    return token
 
