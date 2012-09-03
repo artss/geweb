@@ -86,10 +86,7 @@ class Session(object):
         if not self.sessid:
             return
         self.backend.destroy()
-        def delete_cookie(response):
-            response.delete_cookie(settings.session_cookie,
-                                   domain='.%s' % settings.domain, path='/')
-        wrap_response(delete_cookie)
+        env._session_destroy = True
 
 class SessionBackend(object):
     def __init__(self, sessid):
@@ -129,6 +126,13 @@ class SessionMiddleware(Middleware):
         try:
             sessid = env._sessid
         except KeyError:
+            try:
+                if env._session_destroy:
+                    response.delete_cookie(settings.session_cookie,
+                                           domain='.%s' % settings.domain,
+                                           path='/')
+            except KeyError:
+                pass
             return
         expire = datetime.now() + timedelta(days=settings.session_expire)
         response.set_cookie(settings.session_cookie, sessid,
