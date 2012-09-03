@@ -16,14 +16,19 @@ try:
 except AttributeError:
     format = '%(asctime)s %(levelname)s: %(message)s'
 
-_log = logging.getLogger(settings.logger)
+#_log = logging.getLogger(settings.logger)
+_log = None
 
-info = _log.info
-error = _log.error
-warn = _log.warn
-debug = _log.debug
+#info = _log.info
+#error = _log.error
+#warn = _log.warn
+#debug = _log.debug
 
 def init():
+    global _log
+    if _log:
+        return
+
     logging.basicConfig(format=format, filename=settings.logfile, level=level)
     _log = logging.getLogger(settings.logger)
     if settings.logfile:
@@ -55,3 +60,4 @@ def init():
     warn = _log.warn
     debug = _log.debug
 
+init()
