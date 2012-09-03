@@ -1,9 +1,14 @@
-import os
+import os, sys
 import gevent
 from gevent import monkey; monkey.patch_all()
 from gevent import http as ghttp
 
 import settings
+
+try:
+    sys.path.extend(settings.libs)
+except AttributeError:
+    pass
 
 import traceback
 from time import time
