@@ -8,8 +8,18 @@ from hashlib import md5
 
 from geweb import log
 from geweb.env import env
+from geweb.middleware import register_middleware, \
+                             process_request, process_response
 
 import settings
+
+try:
+    if not isinstance(settings.middleware, (list, tuple)):
+        settings.middleware = [settings.middleware]
+    for m in settings.middleware:
+        register_middleware(m)
+except AttributeError:
+    pass
 
 class Request(object):
 
@@ -96,6 +106,8 @@ class Request(object):
         for c, v in self._cookies.iteritems():
             log.debug('Cookie: %s=%s' % (c, v.value))
 
+        process_request(self)
+
     def args(self, arg, default=None):
         try:
             if len(self._args[arg]) == 1:
@@ -133,6 +145,8 @@ class Response(object):
 
         self._redirect = redirect
 
+        process_response(self)
+
     def header(self, name, value):
         self._headers[name] = value
 
@@ -167,16 +181,4 @@ class Response(object):
         if url is None:
             return self._redirect
         self._redirect = url
-
-def wrap_response(fn):
-    try:
-        env.response_wrappers.append(fn)
-    except KeyError:
-        env.response_wrappers = [fn]
-
-def response_wrappers():
-    try:
-        return env.response_wrappers
-    except KeyError:
-        return []
 

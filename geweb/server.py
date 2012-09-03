@@ -14,7 +14,7 @@ import traceback
 from time import time
 
 from geweb import log
-from geweb.http import Request, Response, response_wrappers
+from geweb.http import Request, Response
 from geweb.route import route
 from geweb.exceptions import HTTPError, InternalServerError
 from geweb.template import render, TemplateNotFound
@@ -58,9 +58,6 @@ def _handler(http_request):
         response = Response(response)
     elif response is None:
         response = Response('')
-
-    for fn in response_wrappers():
-        fn(response)
 
     cookies = response.cookie_out()
     for c in cookies:
