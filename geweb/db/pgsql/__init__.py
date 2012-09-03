@@ -1,5 +1,5 @@
 from geweb import log
-from geweb.util.db.psycopg2_pool import PostgresConnectionPool
+from geweb.db.pgsql.psycopg2_pool import PostgresConnectionPool
 from datetime import datetime
 
 import settings
