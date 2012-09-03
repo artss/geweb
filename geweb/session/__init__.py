@@ -4,7 +4,7 @@ from time import time
 from datetime import datetime, timedelta
 
 from geweb.env import env
-from geweb.http import wrap_response
+from geweb.middleware import Middleware, register_middleware
 
 import settings
 
@@ -35,6 +35,8 @@ class Session(object):
         self._data = {}
         if self.sessid:
             self.backend = backend_cls(self.sessid)
+
+        register_middleware(SessionMiddleware)
 
     def __setitem__(self, item, value):
         self._data[item] = value
@@ -75,15 +77,7 @@ class Session(object):
         if not self.sessid:
             self.new()
         self.backend.save(self._data)
-        def set_cookie(response):
-            expires = datetime.now() + timedelta(days=settings.session_expires)
-            response.set_cookie(settings.session_cookie, self.sessid,
-                                domain='.%s' % settings.domain, path='/',
-                                #secure=True,
-                                #httponly=True,
-                                expires=expires)
-        wrap_response(set_cookie)
-
+        env._sessid = self.sessid
 
     def destroy(self):
         """
@@ -129,4 +123,17 @@ except AttributeError:
 
 module, cls = backend_name.rsplit('.', 1)
 backend_cls = getattr(__import__(module, globals(), locals(), [cls], -1), cls)
+
+class SessionMiddleware(Middleware):
+    def process_response(self, response):
+        try:
+            sessid = env._sessid
+        except KeyError:
+            return
+        expire = datetime.now() + timedelta(days=settings.session_expire)
+        response.set_cookie(settings.session_cookie, sessid,
+                            domain='.%s' % settings.domain, path='/',
+                            #secure=True,
+                            httponly=True,
+                            expires=expire)
 
