@@ -53,9 +53,11 @@ def csrf(fn):
             sess = Session()
             token = env.request.args('csrf_token')
             if not token or sess['csrf_token'] != token:
-                del sess['csrf_token']
+                sess['csrf_token'] = ''
                 sess.save()
                 raise Forbidden
+        sess['csrf_token'] = ''
+        sess.save()
         return fn(*args, **kwargs)
     return _fn
 
