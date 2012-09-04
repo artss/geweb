@@ -32,9 +32,13 @@ class Session(object):
             self.sessid = sessid
         else:
             self.sessid = env.request.cookie(settings.session_cookie)
+
         self._data = {}
+
         if self.sessid:
             self.backend = backend_cls(self.sessid)
+            self._data = self.backend.get()
+
 
         register_middleware(SessionMiddleware)
 
