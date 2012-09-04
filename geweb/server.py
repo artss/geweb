@@ -20,6 +20,19 @@ from geweb.exceptions import HTTPError, InternalServerError
 from geweb.template import render, TemplateNotFound
 from geweb.env import env
 
+import settings
+
+from geweb.middleware import register_middleware, \
+                             process_request, process_response
+
+try:
+    if not isinstance(settings.middleware, (list, tuple)):
+        settings.middleware = [settings.middleware]
+    for m in settings.middleware:
+        register_middleware(m)
+except AttributeError:
+    pass
+
 def _handler(http_request):
     """
     HTTP request handler.
@@ -29,6 +42,7 @@ def _handler(http_request):
         tm = time()
 
     env.request = Request(http_request)
+    process_request(env.request)
 
     try:
         code = 200
@@ -58,6 +72,7 @@ def _handler(http_request):
         response = Response(response)
     elif response is None:
         response = Response('')
+    process_response(response)
 
     cookies = response.cookie_out()
     for c in cookies:
