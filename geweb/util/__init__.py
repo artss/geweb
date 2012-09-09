@@ -62,6 +62,9 @@ def csrf(fn):
 
 def csrf_token():
     sess = Session()
+    token = sess['csrf_token']
+    if token:
+        return token
     token = sha1('%s%s%s' % (
         datetime.now(),
         randint(1000000, 9999999),
