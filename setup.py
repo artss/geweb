@@ -20,7 +20,7 @@ setup(
     license = "BSD",
     keywords = "web framework gevent jinja2",
     url = "http://bitbucket.org/arts/geweb",
-    packages=["geweb", "geweb.template", "geweb.session", "geweb.util", "geweb.db"],
+    packages=["geweb", "geweb.template", "geweb.session", "geweb.util", "geweb.db", "geweb.db.pgsql"],
     install_requires=["gevent", "jinja2", "argparse"],
     scripts=["geweb/bin/geweb"],
     include_package_data=True,
