@@ -8,6 +8,8 @@ def strftime(env, time, format):
     Usage:
     {{ dt|strftime("%Y-%m-%d %H:%M:%s") }}
     """
+    if not time:
+        return ''
     return time.strftime(format)
 
 filters = {
