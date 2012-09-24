@@ -19,6 +19,7 @@ class Request(object):
         self.uri = http_request.uri
 
         path = urlparse.urlparse(self.uri)
+        self.proto = path.scheme
         self.path = path.path
 
         self._headers = {}
