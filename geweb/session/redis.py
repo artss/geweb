@@ -32,7 +32,7 @@ class RedisBackend(SessionBackend):
     def get(self):
         try:
             data = json.loads(self.redis.get(self.key))
-        except ValueError:
+        except (TypeError, ValueError):
             data = {}
         return data
 
