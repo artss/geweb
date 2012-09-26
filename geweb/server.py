@@ -62,9 +62,11 @@ def _handler(http_request):
     except Exception, e:
         code = InternalServerError.code
         message = InternalServerError.message
+        trace=traceback.format_exc()
+        log.error("%s: %s" % (code, trace))
         if settings.debug:
             response = render('geweb/debug.html', code=code, message=message,
-                              trace=traceback.format_exc())
+                              trace=trace)
         else:
             response = render('/50x.html', code=code, message=message)
 
