@@ -8,6 +8,7 @@ from psycopg2 import extensions, OperationalError, connect
 extensions.register_type(extensions.UNICODE)
 extensions.register_type(extensions.UNICODEARRAY)
 from psycopg2.extras import DictConnection
+import time
 from geweb.util import Singleton
 from geweb import log
 
@@ -31,12 +32,13 @@ extensions.set_wait_callback(gevent_wait_callback)
 
 class DatabaseConnectionPool(object):
 
-    def __init__(self, maxsize=100):
+    def __init__(self, maxsize=100, debug=False):
         if not isinstance(maxsize, (int, long)):
             raise TypeError('Expected integer, got %r' % (maxsize, ))
         self.maxsize = maxsize
         self.pool = Queue()
         self.size = 0
+        self.debug = debug
 
     def get(self):
         pool = self.pool
@@ -112,38 +114,55 @@ class DatabaseConnectionPool(object):
 
     def execute(self, *args, **kwargs):
         with self.cursor() as cursor:
+            t = ''
+            if self.debug:
+                t1 = time.time()
+            cursor.execute(*args, **kwargs)
+            if self.debug:
+                t = '%.3f' % (time.time() - t1)
             try:
-                log.debug('execute %s' % cursor.mogrify(*args, **kwargs))
+                log.debug('fetchone %s %s' % \
+                          (t, cursor.mogrify(*args, **kwargs)))
             except:
                 pass
-            cursor.execute(*args, **kwargs)
 
     def fetchone(self, *args, **kwargs):
         with self.cursor() as cursor:
+            t = ''
+            if self.debug:
+                t1 = time.time()
+            cursor.execute(*args, **kwargs)
+            if self.debug:
+                t = '%.3f' % (time.time() - t1)
             try:
-                log.debug('fetchone %s' % cursor.mogrify(*args, **kwargs))
+                log.debug('fetchone %s %s' % \
+                          (t, cursor.mogrify(*args, **kwargs)))
             except:
                 pass
-            cursor.execute(*args, **kwargs)
             return cursor.fetchone()
 
     def fetchall(self, *args, **kwargs):
         with self.cursor() as cursor:
+            t = ''
+            if self.debug:
+                t1 = time.time()
+            cursor.execute(*args, **kwargs)
+            if self.debug:
+                t = ' %.3f' % (time.time() - t1)
             try:
-                log.debug('fetchall %s' % cursor.mogrify(*args, **kwargs))
+                log.debug('fetchone %s %s' % (t, cursor.mogrify(*args, **kwargs)))
             except:
                 pass
-            cursor.execute(*args, **kwargs)
             return cursor.fetchall()
 
 
 class PostgresConnectionPool(Singleton, DatabaseConnectionPool):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, debug=False, *args, **kwargs):
         self.connect = kwargs.pop('connect', connect)
         maxsize = kwargs.pop('maxsize', None)
         self.args = args
         self.kwargs = kwargs
-        DatabaseConnectionPool.__init__(self, maxsize)
+        DatabaseConnectionPool.__init__(self, debug, maxsize)
 
     def create_connection(self):
         conn = self.connect(*self.args, connection_factory=DictConnection,
