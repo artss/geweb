@@ -40,7 +40,7 @@ class Session(object):
             self._data = self.backend.get()
 
 
-        register_middleware(SessionMiddleware)
+        #register_middleware(SessionMiddleware)
 
     def __setitem__(self, item, value):
         self._data[item] = value
