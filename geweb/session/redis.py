@@ -27,7 +27,6 @@ class RedisBackend(SessionBackend):
         self.redis = RedisPool(addr, db)
 
         self.key = 'geweb-session-%s' % sessid
-        log.debug('RedisBackend: %s' % self.key)
 
     def get(self):
         try:
@@ -44,6 +43,8 @@ class RedisBackend(SessionBackend):
             self.redis.expire(self.key, settings.session_expires*86400)
         except AttributeError:
             pass
+
+        log.debug('RedisBackend.save: %s' % self.key)
 
     def destroy(self):
         self.redis.delete(self.key)
