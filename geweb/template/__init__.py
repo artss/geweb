@@ -33,7 +33,8 @@ for appname in settings.apps:
         pass
 
 jinja_env = Environment(loader=PrefixLoader(_loaders),
-                        autoescape=True, cache_size=-1)
+                        autoescape=True, cache_size=-1,
+                        extensions=['jinja2.ext.loopcontrols'])
 
 for name, fn in filters.iteritems():
     jinja_env.filters[name] = fn
