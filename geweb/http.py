@@ -124,7 +124,7 @@ class Request(object):
 
 class Response(object):
 
-    def __init__(self, body=None, mimetype='text/html',
+    def __init__(self, body='', mimetype='text/html',
                        redirect=None, headers={}):
         self.mimetype = mimetype
         self.body = body

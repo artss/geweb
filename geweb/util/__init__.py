@@ -47,16 +47,13 @@ def die(message):
 #CSRF decorator
 def csrf(fn):
     def _fn(*args, **kwargs):
-        if env.request.method == 'GET':
-            csrf_token()
-        else:
-            sess = Session()
-            token = env.request.args('csrf_token')
-            sess_token = sess['csrf_token']
-            del sess['csrf_token']
-            sess.save()
-            if not token or sess_token != token:
-                raise Forbidden
+        sess = Session()
+        token = env.request.args('csrf_token')
+        sess_token = sess['csrf_token']
+        del sess['csrf_token']
+        sess.save()
+        if not token or sess_token != token:
+            raise Forbidden
         return fn(*args, **kwargs)
     return _fn
 
