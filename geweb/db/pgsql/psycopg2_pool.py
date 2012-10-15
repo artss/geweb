@@ -121,7 +121,7 @@ class DatabaseConnectionPool(object):
             if self.debug:
                 t = '%.3f' % (time.time() - t1)
             try:
-                log.debug('fetchone %s %s' % \
+                log.debug('execute %s %s' % \
                           (t, cursor.mogrify(*args, **kwargs)))
             except:
                 pass
@@ -150,7 +150,7 @@ class DatabaseConnectionPool(object):
             if self.debug:
                 t = ' %.3f' % (time.time() - t1)
             try:
-                log.debug('fetchone %s %s' % (t, cursor.mogrify(*args, **kwargs)))
+                log.debug('fetchall %s %s' % (t, cursor.mogrify(*args, **kwargs)))
             except:
                 pass
             return cursor.fetchall()
