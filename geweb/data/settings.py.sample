@@ -5,6 +5,9 @@ workers = 1
 server_host = '127.0.0.1'
 server_port = 8000
 
+# Custom process title
+#proctitle = 'geweb'
+
 # Logger settings
 logger = 'geweb'
 logformat = u'%(asctime)s %(process)d %(filename)s:%(lineno)d:%(funcName)s %(levelname)s  %(message)s' # See help(logging) for details

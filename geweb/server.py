@@ -24,6 +24,7 @@ import settings
 
 from geweb.middleware import register_middleware, \
                              process_request, process_response
+from setproctitle import setproctitle
 
 try:
     if not isinstance(settings.middleware, (list, tuple)):
@@ -131,6 +132,12 @@ def run_server(host=None, port=None, workers=None, debug=None,
 
     if debug:
         settings.debug = True
+
+    try:
+        proctitle = settings.proctitle
+    except AttributeError:
+        proctitle = 'geweb'
+    setproctitle(proctitle)
 
     log.info('Starting HTTP server at %s:%d' % \
              (settings.server_host, settings.server_port))

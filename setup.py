@@ -18,7 +18,7 @@ setup(
     description = ("Asyncronous python/gevent web framework."),
     long_description=read("README.md"),
     license = "BSD",
-    keywords = "web framework gevent jinja2",
+    keywords = "web framework gevent jinja2 setproctitle",
     url = "http://bitbucket.org/arts/geweb",
     packages=["geweb", "geweb.template", "geweb.session", "geweb.util", "geweb.db", "geweb.db.pgsql"],
     install_requires=["gevent", "jinja2", "argparse"],
