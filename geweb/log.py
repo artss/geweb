@@ -38,8 +38,8 @@ def init():
                 when = interval[-1]
                 interval = int(interval[:-1])
             else:
+                interval = 1
                 when = 'midnight'
-
             try:
                 count = settings.logcount
             except AttributeError:
