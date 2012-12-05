@@ -73,8 +73,9 @@ def _handler(http_request):
         response = Response(response)
     elif response is None:
         response = Response('')
-    code = response.code
-    message = response.message
+    if not code or not message:
+        code = response.code
+        message = response.message
     process_response(response)
 
     cookies = response.cookie_out()
