@@ -45,6 +45,8 @@ def _handler(http_request):
     env.request = Request(http_request)
     process_request(env.request)
 
+    code = None
+    message = None
     try:
         response = route(env.request.path)
 
