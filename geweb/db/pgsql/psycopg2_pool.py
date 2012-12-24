@@ -126,6 +126,20 @@ class DatabaseConnectionPool(object):
             except:
                 pass
 
+    def executemany(self, *args, **kwargs):
+        with self.cursor() as cursor:
+            t = ''
+            if self.debug:
+                t1 = time.time()
+            cursor.executemany(*args, **kwargs)
+            if self.debug:
+                t = '%.3f' % (time.time() - t1)
+            try:
+                log.debug('executemany %s %s' % \
+                          (t, cursor.mogrify(*args, **kwargs)))
+            except:
+                pass
+
     def fetchone(self, *args, **kwargs):
         with self.cursor() as cursor:
             t = ''

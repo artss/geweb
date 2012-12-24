@@ -21,3 +21,7 @@ def perform(q, subs=None):
     pool = PostgresConnectionPool(debug=settings.debug, **settings.db)
     pool.execute(q, subs)
 
+def batch(q, subs=None):
+    pool = PostgresConnectionPool(debug=settings.debug, **settings.db)
+    res = pool.executemany(q, subs)
+    return res
