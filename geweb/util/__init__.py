@@ -7,6 +7,8 @@ from geweb.session import Session
 from geweb.exceptions import Forbidden
 from geweb.env import env
 
+import settings
+
 class Singleton(object):
     def __new__(cls, *args, **kwargs):
         name = "_%s__instance" % cls.__name__
@@ -44,30 +46,19 @@ def die(message):
     sys.stderr.write("%s\n" % message)
     sys.exit(1)
 
+def csrf_token():
+    sess = Session()
+    if not sess.sessid:
+        sess.new()
+        sess.save()
+    return sha1('%s%s' % (settings.secret, sess.sessid)).hexdigest()
+
 #CSRF decorator
 def csrf(fn):
     def _fn(*args, **kwargs):
-        sess = Session()
         token = env.request.args('csrf_token')
-        sess_token = sess['csrf_token']
-        del sess['csrf_token']
-        sess.save()
-        if not token or sess_token != token:
+        if not token or token != csrf_token():
+            print 'CSRF', token, csrf_token()
             raise Forbidden
         return fn(*args, **kwargs)
     return _fn
-
-def csrf_token():
-    sess = Session()
-    token = sess['csrf_token']
-    if token:
-        return token
-    token = sha1('%s%s%s' % (
-        datetime.now(),
-        randint(1000000, 9999999),
-        env.request.path
-    )).hexdigest()
-    sess['csrf_token'] = token
-    sess.save()
-    return token
-
