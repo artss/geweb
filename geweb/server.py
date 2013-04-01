@@ -91,7 +91,9 @@ def _handler(http_request):
                                 str('redirect %s' % redirect))
     else:
         http_request.add_output_header("Content-Type", response.mimetype)
-        http_request.send_reply(code, message, response.body.encode('utf-8'))
+        if isinstance(response.body, unicode):
+            response.body = response.body.encode('utf-8')
+        http_request.send_reply(code, message, response.body)
 
     if settings.debug:
         tm = round(time() - tm, 4)
