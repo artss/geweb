@@ -14,6 +14,8 @@ import settings
 class Request(object):
 
     def __init__(self, http_request):
+        self.protocol = http_request.find_input_header('X-Forwarded-Proto') \
+                        or 'http'
         self.method = http_request.typestr
 
         self.uri = http_request.uri
