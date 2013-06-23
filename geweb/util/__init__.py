@@ -62,3 +62,8 @@ def csrf(fn):
             raise Forbidden
         return fn(*args, **kwargs)
     return _fn
+
+def urlencode(s):
+    if isinstance(s, unicode):
+        s = s.encode('utf-8')
+    return urllib.quote_plus(s)
