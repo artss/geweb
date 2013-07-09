@@ -120,11 +120,11 @@ class DatabaseConnectionPool(object):
             cursor.execute(*args, **kwargs)
             if self.debug:
                 t = '%.3f' % (time.time() - t1)
-            try:
-                log.debug('execute %s %s' % \
-                          (t, cursor.mogrify(*args, **kwargs)))
-            except:
-                pass
+                try:
+                    log.debug(u'execute %s %s' % \
+                              (t, cursor.mogrify(*args, **kwargs)))
+                except:
+                    pass
 
     def executemany(self, *args, **kwargs):
         with self.cursor() as cursor:
@@ -134,11 +134,11 @@ class DatabaseConnectionPool(object):
             cursor.executemany(*args, **kwargs)
             if self.debug:
                 t = '%.3f' % (time.time() - t1)
-            try:
-                log.debug('executemany %s %s' % \
-                          (t, cursor.mogrify(*args, **kwargs)))
-            except:
-                pass
+                try:
+                    log.debug(u'executemany %s %s' % \
+                              (t, cursor.mogrify(*args, **kwargs)))
+                except:
+                    pass
 
     def fetchone(self, *args, **kwargs):
         with self.cursor() as cursor:
@@ -148,11 +148,11 @@ class DatabaseConnectionPool(object):
             cursor.execute(*args, **kwargs)
             if self.debug:
                 t = '%.3f' % (time.time() - t1)
-            try:
-                log.debug('fetchone %s %s' % \
-                          (t, cursor.mogrify(*args, **kwargs)))
-            except:
-                pass
+                try:
+                    log.debug(u'fetchone %s %s' % \
+                              (t, cursor.mogrify(*args, **kwargs)))
+                except:
+                    pass
             return cursor.fetchone()
 
     def fetchall(self, *args, **kwargs):
@@ -163,10 +163,10 @@ class DatabaseConnectionPool(object):
             cursor.execute(*args, **kwargs)
             if self.debug:
                 t = ' %.3f' % (time.time() - t1)
-            try:
-                log.debug('fetchall %s %s' % (t, cursor.mogrify(*args, **kwargs)))
-            except:
-                pass
+                try:
+                    log.debug(u'fetchall %s %s' % (t, cursor.mogrify(*args, **kwargs)))
+                except:
+                    pass
             return cursor.fetchall()
 
 
