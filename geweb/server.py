@@ -89,6 +89,7 @@ def _handler(http_request):
     redirect = response.redirect()
     if redirect:
         http_request.add_output_header('Location', redirect)
+        http_request.add_output_header("Content-Type", "text/plain")
         http_request.send_reply(302, 'Moved Temporarily',
                                 str('redirect %s' % redirect))
     else:
