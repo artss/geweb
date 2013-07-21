@@ -3,6 +3,7 @@ import time
 from hashlib import sha1
 from datetime import datetime
 from random import randint
+import urllib
 from geweb.session import Session
 from geweb.exceptions import Forbidden
 from geweb.env import env
