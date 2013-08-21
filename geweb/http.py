@@ -24,8 +24,10 @@ class Request(object):
         self.path = path.path
 
         self._headers = {}
+        self.headers_dict = {}
         for name, value in http_request.get_input_headers():
             self._headers[name.lower()] = value
+            self.headers_dict[name] = value
 
         self.host = self.header('Host')
 

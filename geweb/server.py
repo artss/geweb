@@ -13,7 +13,6 @@ except AttributeError:
 
 import inspect
 import traceback
-from pprint import pprint
 
 from time import time
 
@@ -21,7 +20,7 @@ from geweb import log
 from geweb.http import Request, Response
 from geweb.route import route
 from geweb.exceptions import HTTPError, InternalServerError
-from geweb.template import render, TemplateNotFound
+from geweb.template import render, render_string, TemplateNotFound
 from geweb.env import env
 
 import settings
@@ -70,7 +69,6 @@ def _handler(http_request):
 
         trace = traceback.format_exc()
         tb = inspect.trace()[-1][0]
-        pprint(tb)
 
         if isinstance(trace, str):
             trace = trace.decode('utf-8')
@@ -81,12 +79,15 @@ def _handler(http_request):
         else:
             response = render('/50x.html', code=code, message=message)
             subject = 'Error: %s' % e.__class__.__name__
-            body = render('geweb/report.html', code=code, message=message,
-                          globals=tb.f_globals.iteritems(),
-                          locals=tb.f_locals.iteritems(),
-                          exception=e, trace=trace)
-            response = body
-            #mail(settings.report_mail, subject=subject, body=body, html=True)
+            body = render_string('geweb/report.html',
+                    code=code, message=message,
+                    url=env.request.uri, method=env.request.method,
+                    headers=env.request.headers_dict.iteritems(),
+                    globals=tb.f_globals.iteritems(),
+                    locals=tb.f_locals.iteritems(),
+                    exception=e, trace=trace)
+
+            mail(settings.report_mail, subject=subject, body=body, html=True)
 
     if isinstance(response, (str, unicode)):
         response = Response(response)

@@ -27,6 +27,8 @@ def mail(to, body, subject='', template=None, html=False, \
         smtp.starttls()
         smtp.ehlo()
         smtp.login(settings.smtp_login, settings.smtp_password)
+    else:
+        smtp.ehlo()
 
     if attachments:
         msg = MIMEMultipart()
@@ -60,8 +62,10 @@ def mail(to, body, subject='', template=None, html=False, \
             msg.attach(part)
 
     elif html:
+        if isinstance(body, unicode):
+            body = body.encode('utf-8')
         msg = MIMEMultipart('alternative')
-        msg.attach(MIMEText(body, 'html'))
+        msg.attach(MIMEText(body, 'html', 'utf-8'))
 
     else:
         msg = MIMEText(body)
