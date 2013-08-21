@@ -1,5 +1,6 @@
 from jinja2 import environmentfilter
 import urllib
+from pprint import pformat
 
 @environmentfilter
 def strftime(env, time, format):
@@ -17,7 +18,12 @@ def strftime(env, time, format):
 def urlencode(env, s):
     return urllib.quote_plus(s.encode('utf-8'))
 
+@environmentfilter
+def pprint(env, s):
+    return pformat(s)
+
 filters = {
     'strftime': strftime,
     'urlencode': urlencode,
+    'pprint': pprint,
 }

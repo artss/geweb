@@ -2,6 +2,7 @@ import os, sys
 import gevent
 from gevent import monkey; monkey.patch_all()
 from gevent import http as ghttp
+from geweb.mail import mail
 
 import settings
 
@@ -10,7 +11,10 @@ try:
 except AttributeError:
     pass
 
+import inspect
 import traceback
+from pprint import pprint
+
 from time import time
 
 from geweb import log
@@ -63,7 +67,11 @@ def _handler(http_request):
     except Exception, e:
         code = InternalServerError.code
         message = InternalServerError.message
+
         trace = traceback.format_exc()
+        tb = inspect.trace()[-1][0]
+        pprint(tb)
+
         if isinstance(trace, str):
             trace = trace.decode('utf-8')
         log.error("%s: %s" % (code, trace))
@@ -72,6 +80,13 @@ def _handler(http_request):
                               trace=trace)
         else:
             response = render('/50x.html', code=code, message=message)
+            subject = 'Error: %s' % e.__class__.__name__
+            body = render('geweb/report.html', code=code, message=message,
+                          globals=tb.f_globals.iteritems(),
+                          locals=tb.f_locals.iteritems(),
+                          exception=e, trace=trace)
+            response = body
+            #mail(settings.report_mail, subject=subject, body=body, html=True)
 
     if isinstance(response, (str, unicode)):
         response = Response(response)
