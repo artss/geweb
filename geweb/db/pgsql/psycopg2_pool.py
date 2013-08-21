@@ -176,7 +176,7 @@ class PostgresConnectionPool(Singleton, DatabaseConnectionPool):
         maxsize = kwargs.pop('maxsize', None)
         self.args = args
         self.kwargs = kwargs
-        DatabaseConnectionPool.__init__(self, debug, maxsize)
+        DatabaseConnectionPool.__init__(self, debug=debug, maxsize=maxsize)
 
     def create_connection(self):
         conn = self.connect(*self.args, connection_factory=DictConnection,
