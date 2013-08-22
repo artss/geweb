@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ code }} {{ message }}</title>
+        <style>
+            body { font: .8em/1.5 Arial, Tahoma, "Helvetica Neue", sans-serif; color: #444444; background-color: #fffedd; }
+            pre { border: dashed 1px #dddcbb; padding: 0.5em;}
+            table { width: 100%; border-collapse: collapse; }
+            td { padding: .5em; vertical-align: top; font-family: monospace; border: dashed 1px #dddcbb; white-space: pre; }
+        </style>
+    </head>
+    <body>
+        <h1>{{ code }} {{ message }}</h1>
+
+        <table>
+            <tr>
+                <td>Protocol</td>
+                <td>{{protocol}}</td>
+            </tr>
+            <tr>
+                <td>Host</td>
+                <td>{{host}}</td>
+            </tr>
+            <tr>
+                <td>URI</td>
+                <td>{{uri}}</td>
+            </tr>
+            <tr>
+                <td>Method</td>
+                <td>{{method}}</td>
+            </tr>
+        </table>
+
+        <h2>Params</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, value in params %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{% if value|count == 1 %}{{value.0|pprint}}{% else %}{{value|pprint}}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Headers</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, value in headers %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{value|pprint}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Traceback</h2>
+        <pre>{{ trace }}</pre>
+
+        <h2>Locals</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, value in locals %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{value|pprint}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Globals</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, value in globals %}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{value|pprint}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

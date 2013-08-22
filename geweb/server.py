@@ -73,20 +73,22 @@ def _handler(http_request):
         if isinstance(trace, str):
             trace = trace.decode('utf-8')
         log.error("%s: %s" % (code, trace))
+
+        subject = 'Error: %s' % e.__class__.__name__
+        body = render_string('geweb/report.html',
+                code=code, message=message,
+                protocol=env.request.protocol, host=env.request.host,
+                uri=env.request.uri, method=env.request.method,
+                params=env.request.args().iteritems(),
+                headers=env.request.headers_dict.iteritems(),
+                globals=tb.f_globals.iteritems(),
+                locals=tb.f_locals.iteritems(),
+                exception=e, trace=trace)
+
         if settings.debug:
-            response = render('geweb/debug.html', code=code, message=message,
-                              trace=trace)
+            response = Response(body, code=code, message=message)
         else:
             response = render('/50x.html', code=code, message=message)
-            subject = 'Error: %s' % e.__class__.__name__
-            body = render_string('geweb/report.html',
-                    code=code, message=message,
-                    url=env.request.uri, method=env.request.method,
-                    headers=env.request.headers_dict.iteritems(),
-                    globals=tb.f_globals.iteritems(),
-                    locals=tb.f_locals.iteritems(),
-                    exception=e, trace=trace)
-
             mail(settings.report_mail, subject=subject, body=body, html=True)
 
     if isinstance(response, (str, unicode)):

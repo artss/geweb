@@ -100,7 +100,9 @@ class Request(object):
         for c, v in self._cookies.iteritems():
             log.debug('Cookie: %s=%s' % (c, v.value))
 
-    def args(self, arg, default=None):
+    def args(self, arg=None, default=None):
+        if arg is None:
+            return self._args
         try:
             if len(self._args[arg]) == 1:
                 return self._args[arg][0]
