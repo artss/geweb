@@ -74,7 +74,7 @@ def _handler(http_request):
             trace = trace.decode('utf-8')
         log.error("%s: %s" % (code, trace))
 
-        subject = 'Error: %s' % e.__class__.__name__
+        subject = 'Error at %s: %s' % (settings.domain, e.__class__.__name__)
         body = render_string('geweb/report.html',
                 code=code, message=message,
                 protocol=env.request.protocol, host=env.request.host,
