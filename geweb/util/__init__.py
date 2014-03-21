@@ -5,7 +5,7 @@ from datetime import datetime
 from random import randint
 import urllib
 from geweb.session import Session
-from geweb.exceptions import Forbidden
+from geweb.exceptions import BadRequest, Forbidden
 from geweb.env import env
 
 import settings
@@ -59,7 +59,6 @@ def csrf(fn):
     def _fn(*args, **kwargs):
         token = env.request.args('csrf_token')
         if not token or token != csrf_token():
-            print 'CSRF', token, csrf_token()
             raise Forbidden
         return fn(*args, **kwargs)
     return _fn
@@ -68,3 +67,11 @@ def urlencode(s):
     if isinstance(s, unicode):
         s = s.encode('utf-8')
     return urllib.quote_plus(s)
+
+def check_https(fn):
+    def _fn(*args, **kwargs):
+        if env.request.protocol.lower() != 'https':
+            raise BadRequest
+        return fn(*args, **kwargs)
+    return _fn
+
