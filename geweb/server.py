@@ -51,7 +51,7 @@ def _handler(http_request):
     code = None
     message = None
     try:
-        response = route(env.request.path)
+        response = route(env.request.method, env.request.path)
 
     except HTTPError, e:
         code = e.code
