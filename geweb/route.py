@@ -31,7 +31,7 @@ def route(method, path):
         m = re.match(regex, path)
         if m:
             if methods and method.lower() not in methods:
-                raise Forbidden
+                raise MethodNotAllowed
             return view(**m.groupdict())
 
     raise NotFound
