@@ -14,6 +14,10 @@ class NotFound(HTTPError):
     code = 404
     message = "Page Not Found"
 
+class MethodNotAllowed(HTTPError):
+    code = 405
+    message = "Method Not Allowed"
+
 class InternalServerError(HTTPError):
     code = 500
     message = "Internal Server Error"

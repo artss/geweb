@@ -1,5 +1,5 @@
 from geweb import log
-from geweb.exceptions import NotFound, Forbidden
+from geweb.exceptions import NotFound, MethodNotAllowed
 
 try:
     import re2 as re
@@ -28,10 +28,10 @@ def route(method, path):
         return welcome()
 
     for regex, methods, view in urls_list:
-        if methods and method.lower() not in methods:
-            raise Forbidden
         m = re.match(regex, path)
         if m:
+            if methods and method.lower() not in methods:
+                raise Forbidden
             return view(**m.groupdict())
 
     raise NotFound
