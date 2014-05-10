@@ -43,16 +43,16 @@ class Request(object):
         self._args = {}
         self._files = {}
 
-        if self.method == 'GET':
+        if self.method in ('GET', 'HEAD'):
             self._args = urlparse.parse_qs(path.query)
 
-        elif self.method in ('POST', 'PUT'):
+        elif self.method in ('POST', 'PUT', 'DELETE'):
             ctype = http_request.find_input_header('Content-Type')
             clen = http_request.find_input_header('Content-Length')
 
             if not ctype or ctype.startswith('application/x-www-form-urlencoded'):
-                self._args = urlparse.parse_qs(
-                                    http_request.input_buffer.read())
+                _buf = http_request.input_buffer.read(-1)
+                self._args = urlparse.parse_qs(_buf)
 
             elif ctype.startswith('multipart/form-data'):
                 form = FieldStorage(fp=http_request.input_buffer,
