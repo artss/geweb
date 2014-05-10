@@ -16,7 +16,7 @@ class RedisBackend(SessionBackend):
     """
     def __init__(self, sessid):
         try:
-            addr = settings.session_dir
+            addr = settings.session_socket
         except AttributeError:
             addr = 'tcp://127.0.0.1:6379'
         try:

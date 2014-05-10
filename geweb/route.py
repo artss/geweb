@@ -27,13 +27,17 @@ def route(method, path):
     if not urls_list:
         return welcome()
 
+    err = None
     for regex, methods, view in urls_list:
         m = re.match(regex, path)
         if m:
             if methods and method.lower() not in methods:
-                raise MethodNotAllowed
+                err = MethodNotAllowed
+                continue
             return view(**m.groupdict())
 
+    if err:
+        raise err
     raise NotFound
 
 def welcome():
