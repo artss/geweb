@@ -63,7 +63,6 @@ class Request(object):
                                     }, keep_blank_values=True)
 
                 for field in form.list:
-                    print 'FIELD', field
                     try:
                         if not field.filename:
                             raise AttributeError
