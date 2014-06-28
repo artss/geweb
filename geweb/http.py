@@ -62,37 +62,43 @@ class Request(object):
                                         'CONTENT_LENGTH': clen
                                     }, keep_blank_values=True)
 
-                for f in form.keys():
+                for field in form.list:
+                    print 'FIELD', field
                     try:
-                        if not form[f].filename:
+                        if not field.filename:
                             raise AttributeError
 
-                        pos = form[f].filename.rfind('/')
+                        pos = field.filename.rfind('/')
                         if pos == -1:
-                            pos = form[f].filename.rfind('\\')
-                        self._args[f] = form[f].filename[pos+1:]
+                            pos = field.filename.rfind('\\')
+                        try:
+                            if not isinstance(self._args[field.name], (list, tuple)):
+                                self._args[field.name] = [self._args[field.name]]
+                            self._args[field.name].append(field.filename[pos+1:])
+                        except KeyError:
+                            self._args[field.name] = field.filename[pos+1:]
 
                         tmpfile = '%s.%s' % \
-                                  (self._args[f],
+                                  (self._args[field.name],
                                    md5(datetime.now().isoformat()).hexdigest())
                         try:
                             upload_dir = settings.upload_dir
                         except AttributeError:
                             upload_dir = '/tmp' # FIXME: get from environment
-                        self._files[f] = os.path.join(upload_dir, tmpfile)
-                        fd = open(self._files[f], 'w')
+                        self._files[field.name] = os.path.join(upload_dir, tmpfile)
+                        fd = open(self._files[field.name], 'w')
                         while True:
-                            b = form[f].file.read(4096)
+                            b = field.file.read(4096)
                             if b == '':
                                 break
                             fd.write(b)
                         fd.close()
-                        log.info('Upload %s: %s' % (f, form[f].filename))
+                        log.info('Upload %s: %s' % (field.name, field.filename))
                     except AttributeError:
-                        self._args[f] = form.getvalue(f)
+                        self._args[field.name] = form.getvalue(field.name)
                     except IOError, e:
                         log.error('Cannot write %s: %s' % \
-                                  (self._files[f], e.strerror))
+                                  (self._files[field.name], e.strerror))
 
                 del form
 
