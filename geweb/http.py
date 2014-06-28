@@ -70,22 +70,30 @@ class Request(object):
                         pos = field.filename.rfind('/')
                         if pos == -1:
                             pos = field.filename.rfind('\\')
+                        filename = field.filename[pos+1:]
                         try:
                             if not isinstance(self._args[field.name], (list, tuple)):
                                 self._args[field.name] = [self._args[field.name]]
-                            self._args[field.name].append(field.filename[pos+1:])
+                            self._args[field.name].append(filename)
                         except KeyError:
-                            self._args[field.name] = field.filename[pos+1:]
+                            self._args[field.name] = filename
 
                         tmpfile = '%s.%s' % \
-                                  (self._args[field.name],
+                                  (filename,
                                    md5(datetime.now().isoformat()).hexdigest())
                         try:
                             upload_dir = settings.upload_dir
                         except AttributeError:
                             upload_dir = '/tmp' # FIXME: get from environment
-                        self._files[field.name] = os.path.join(upload_dir, tmpfile)
-                        fd = open(self._files[field.name], 'w')
+
+                        tmpfile_path = os.path.join(upload_dir, tmpfile)
+                        try:
+                            if not isinstance(self._files[field.name], (list, tuple)):
+                                self._files[field.name] = [self._files[field.name]]
+                            self._files[field.name].append(tmpfile_path)
+                        except KeyError:
+                            self._files[field.name] = tmpfile_path
+                        fd = open(tmpfile_path, 'w')
                         while True:
                             b = field.file.read(4096)
                             if b == '':
