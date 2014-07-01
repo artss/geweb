@@ -76,9 +76,7 @@ class Request(object):
                             except KeyError:
                                 self._args[field.name] = filename
 
-                            tmpfile = '%s.%s' % \
-                                      (filename,
-                                       md5(datetime.now().isoformat()).hexdigest())
+                            tmpfile = md5("%s%s" % (filename, datetime.now().isoformat())).hexdigest()
                             try:
                                 upload_dir = settings.upload_dir
                             except AttributeError:
