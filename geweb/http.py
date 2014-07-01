@@ -64,45 +64,50 @@ class Request(object):
 
                 for field in form.list:
                     try:
-                        if not field.filename:
-                            raise AttributeError
+                        if field.filename:
+                            pos = field.filename.rfind('/')
+                            if pos == -1:
+                                pos = field.filename.rfind('\\')
+                            filename = field.filename[pos+1:]
+                            try:
+                                if not isinstance(self._args[field.name], (list, tuple)):
+                                    self._args[field.name] = [self._args[field.name]]
+                                self._args[field.name].append(filename)
+                            except KeyError:
+                                self._args[field.name] = filename
 
-                        pos = field.filename.rfind('/')
-                        if pos == -1:
-                            pos = field.filename.rfind('\\')
-                        filename = field.filename[pos+1:]
-                        try:
-                            if not isinstance(self._args[field.name], (list, tuple)):
-                                self._args[field.name] = [self._args[field.name]]
-                            self._args[field.name].append(filename)
-                        except KeyError:
-                            self._args[field.name] = filename
+                            tmpfile = '%s.%s' % \
+                                      (filename,
+                                       md5(datetime.now().isoformat()).hexdigest())
+                            try:
+                                upload_dir = settings.upload_dir
+                            except AttributeError:
+                                upload_dir = '/tmp' # FIXME: get from environment
 
-                        tmpfile = '%s.%s' % \
-                                  (filename,
-                                   md5(datetime.now().isoformat()).hexdigest())
-                        try:
-                            upload_dir = settings.upload_dir
-                        except AttributeError:
-                            upload_dir = '/tmp' # FIXME: get from environment
-
-                        tmpfile_path = os.path.join(upload_dir, tmpfile)
-                        try:
-                            if not isinstance(self._files[field.name], (list, tuple)):
-                                self._files[field.name] = [self._files[field.name]]
-                            self._files[field.name].append(tmpfile_path)
-                        except KeyError:
-                            self._files[field.name] = tmpfile_path
-                        fd = open(tmpfile_path, 'w')
-                        while True:
-                            b = field.file.read(4096)
-                            if b == '':
-                                break
-                            fd.write(b)
-                        fd.close()
-                        log.info('Upload %s: %s' % (field.name, field.filename))
-                    except AttributeError:
-                        self._args[field.name] = form.getvalue(field.name)
+                            tmpfile_path = os.path.join(upload_dir, tmpfile)
+                            try:
+                                if not isinstance(self._files[field.name], (list, tuple)):
+                                    self._files[field.name] = [self._files[field.name]]
+                                self._files[field.name].append(tmpfile_path)
+                            except KeyError:
+                                self._files[field.name] = tmpfile_path
+                            fd = open(tmpfile_path, 'w')
+                            while True:
+                                b = field.file.read(4096)
+                                if b == '':
+                                    break
+                                fd.write(b)
+                            fd.close()
+                            log.info('Upload %s: %s' % (field.name, field.filename))
+                        else:
+                            if not field.value:
+                                continue
+                            try:
+                                if not isinstance(self._args[field.name], (list, tuple)):
+                                    self._args[field.name] = [self._args[field.name]]
+                                self._args[field.name].append(field.value)
+                            except KeyError:
+                                self._args[field.name] = field.value
                     except IOError, e:
                         log.error('Cannot write %s: %s' % \
                                   (self._files[field.name], e.strerror))
