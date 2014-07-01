@@ -31,9 +31,13 @@ class Session(object):
         if sessid:
             self.sessid = sessid
         else:
-            self.sessid = env.request.cookie(settings.session_cookie)
-            if not self.sessid:
+            try:
+                self.sessid = env._sessid
+            except KeyError:
                 self.sessid = env.request.header('authorization')
+                if not self.sessid:
+                    self.sessid = env.request.cookie(settings.session_cookie)
+                env._sessid = self.sessid
 
         self._data = {}
 

@@ -50,7 +50,6 @@ def die(message):
 def csrf_token():
     sess = Session()
     if not sess.sessid:
-        sess.new()
         sess.save()
     return sha1('%s%s' % (settings.secret, sess.sessid)).hexdigest()
 
