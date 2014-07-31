@@ -25,8 +25,11 @@ class RedisBackend(SessionBackend):
             db = 0
 
         self.redis = RedisPool(addr, db)
-
-        self.key = 'geweb-session-%s' % sessid
+        try:
+            prefix = settings.session_prefix
+        except AttributeError:
+            prefix = 'geweb-session-'
+        self.key = '%s%s' % (prefix, sessid)
 
     def get(self):
         try:
