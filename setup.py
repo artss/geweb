@@ -12,7 +12,7 @@ def read(fname):
 
 setup(
     name = "geweb",
-    version = "0.0.3",
+    version = "0.1.0",
     author = "Artem Sazhin",
     author_email = "arts@point.im",
     description = ("Asyncronous python/gevent web framework."),
@@ -20,12 +20,12 @@ setup(
     license = "BSD",
     keywords = "web framework gevent jinja2 setproctitle",
     url = "http://bitbucket.org/arts/geweb",
-    packages=["geweb", "geweb.template", "geweb.session", "geweb.util", "geweb.db", "geweb.db.pgsql"],
-    install_requires=["gevent", "jinja2", "argparse"],
-    scripts=["geweb/bin/geweb"],
-    include_package_data=True,
+    packages = ["geweb", "geweb.template", "geweb.session", "geweb.util", "geweb.db", "geweb.db.pgsql"],
+    install_requires = ["gevent", "jinja2", "argparse"],
+    scripts = ["geweb/bin/geweb"],
+    include_package_data = True,
 
-    classifiers=[
+    classifiers = [
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python",
         "Topic :: Internet :: WWW/HTTP",
