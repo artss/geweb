@@ -47,6 +47,9 @@ class Request(object):
 
         self.query_string = environ['QUERY_STRING']
 
+        self.uri = '%s?%s' % (self.path, self.query_string) \
+                              if self.query_string else self.path
+
         if self.method in ('GET', 'HEAD'):
             self._args = urlparse.parse_qs(environ['QUERY_STRING'])
 
@@ -117,10 +120,7 @@ class Request(object):
             log.debug('Cookie: %s=%s' % (c, v.value))
 
     def __str__(self):
-        uri = '%s?%s' % (self.path, self.query_string) \
-              if self.query_string else self.path
-
-        return '%s %s://%s%s' % (self.method, self.protocol, self.host, uri)
+        return '%s %s://%s%s' % (self.method, self.protocol, self.host, self.uri)
 
     def args(self, arg=None, default=None):
         if arg is None:
@@ -143,6 +143,9 @@ class Request(object):
             return self._headers[name.lower()]
         except KeyError:
             return None
+
+    def headers(self):
+        return self._headers.iteritems()
 
     def cookie(self, name, default=None):
         try:

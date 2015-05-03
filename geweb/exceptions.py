@@ -1,4 +1,8 @@
-class HTTPError(Exception):
+class GewebError(Exception):
+    code = 444
+    message = 'Unknown error'
+
+class HTTPError(GewebError):
     code = 555
     message = "Unknown HTTP Error"
 

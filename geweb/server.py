@@ -17,7 +17,7 @@ from time import time
 from geweb import log
 from geweb.http import Request, RequestHandler, Response
 from geweb.route import resolve
-from geweb.exceptions import HTTPError, InternalServerError
+from geweb.exceptions import GewebError, HTTPError, InternalServerError
 from geweb.template import render, render_string, TemplateNotFound
 from geweb.middleware import register_middleware, \
                              process_request, process_response
@@ -33,6 +33,7 @@ except AttributeError:
 
 def handle(environ, start_response):
     tm = time()
+
     env.request = Request(environ)
     process_request(env.request)
 
@@ -41,12 +42,14 @@ def handle(environ, start_response):
     try:
         response = resolve(env.request)
 
-    except HTTPError, e:
+    except GewebError, e:
         code = e.code
         message = e.message
 
         try:
-            response = render(['/%d.html'%code,'/50x.html', 'geweb/50x.html'],
+            response = render(['/errors/%s.html' % e.__class__.__name__,
+                               '/%d.html' % code, '/50x.html',
+                               'geweb/50x.html'],
                               code=code, message=message)
         except TemplateNotFound, e:
             response = 'No error template found'
@@ -68,7 +71,7 @@ def handle(environ, start_response):
                 protocol=env.request.protocol, host=env.request.host,
                 uri=env.request.uri, method=env.request.method,
                 params=env.request.args().iteritems(),
-                headers=env.request.headers_dict.iteritems(),
+                headers=env.request.headers(),
                 globals=tb.f_globals.iteritems(),
                 locals=tb.f_locals.iteritems(),
                 exception=e, trace=trace)

@@ -33,6 +33,7 @@ def welcome():
     from geweb.template import render
     return render('geweb/welcome.html')
 
+# route instance
 class R(object):
     def __init__(self, pattern, view, methods=None, host=None):
         self.pattern = re.compile(pattern)
@@ -67,7 +68,10 @@ class R(object):
 
 for app in settings.apps:
     urls = __import__("%s.urls" % app, globals(), locals(), 'urls', -1)
-    routes.extend([r for r in urls.urls])
+    try:
+        routes.extend([r for r in urls.urls])
+    except AttributeError:
+        pass
 
 __all__ = ['R', 'route', 'resolve']
 
