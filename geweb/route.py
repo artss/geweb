@@ -1,5 +1,5 @@
 from geweb import log
-from geweb.exceptions import NotFound, MethodNotAllowed
+from geweb.exceptions import NotFound
 
 try:
     import re2 as re
@@ -8,39 +8,58 @@ except ImportError:
 
 import settings
 
-urls_list = []
+routes = []
 
-for app in settings.apps:
-    urls = __import__("%s.urls" % app, globals(), locals(), 'urls', -1)
-    for item in urls.urls:
-        try:
-            regex, methods, view = item
-            if not isinstance(methods, (list, tuple)):
-                methods = [methods]
-            methods = map(lambda m: m.lower(), methods)
-        except ValueError:
-            regex, view = item
-            methods = None
-        urls_list.append((re.compile(regex), methods, view))
+# route decorator
+def route(fn):
+    pass
 
-def route(method, path):
-    if not urls_list:
+def resolve(request):
+    if not routes:
         return welcome()
 
-    err = None
-    for regex, methods, view in urls_list:
-        m = re.match(regex, path)
-        if m:
-            if methods and method.lower() not in methods:
-                err = MethodNotAllowed
-                continue
-            return view(**m.groupdict())
+    for r in routes:
+        try:
+            return r.resolve(request)
+        except R.NotMatched:
+            continue
 
-    if err:
-        raise err
     raise NotFound
 
 def welcome():
     from geweb.template import render
     return render('geweb/welcome.html')
+
+class R(object):
+    def __init__(self, pattern, view, methods=None, subdomain=None):
+        self.pattern = re.compile(pattern)
+
+        if methods:
+            if not isinstance(methods, (list, tuple)):
+                methods = [methods]
+            self.methods = map(lambda m: m.upper(), methods)
+        else:
+            self.methods = None
+
+        self.view = view
+
+    def resolve(self, request):
+        if self.methods and request.method.upper() not in self.methods:
+            raise R.NotMatched
+
+        m = re.match(self.pattern, request.path)
+        if not m:
+            raise R.NotMatched
+
+        log.debug('%s resolved to %s' % (request, self.view))
+        return self.view(**m.groupdict())
+
+    class NotMatched(Exception):
+        pass
+
+for app in settings.apps:
+    urls = __import__("%s.urls" % app, globals(), locals(), 'urls', -1)
+    routes.extend([r for r in urls.urls])
+
+__all__ = ['R', 'route', 'resolve']
 

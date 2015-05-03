@@ -16,7 +16,7 @@ from time import time
 
 from geweb import log
 from geweb.http import Request, RequestHandler, Response
-from geweb.route import route
+from geweb.route import resolve
 from geweb.exceptions import HTTPError, InternalServerError
 from geweb.template import render, render_string, TemplateNotFound
 from geweb.middleware import register_middleware, \
@@ -39,7 +39,7 @@ def handle(environ, start_response):
     code = None
     message = None
     try:
-        response = route(env.request.method, env.request.path)
+        response = resolve(env.request)
 
     except HTTPError, e:
         code = e.code
