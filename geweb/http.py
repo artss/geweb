@@ -5,62 +5,62 @@ from Cookie import Cookie
 from datetime import datetime, timedelta
 import time
 from hashlib import md5
+from gevent.wsgi import WSGIHandler
 
 from geweb import log
 from geweb.env import env
 
 import settings
 
+class RequestHandler(WSGIHandler):
+    def get_environ(self):
+        environ = super(RequestHandler, self).get_environ()
+        environ['headers'] = dict(self.headers)
+        return environ
+
 class Request(object):
 
-    def __init__(self, http_request):
-        self.protocol = http_request.find_input_header('X-Forwarded-Proto') \
-                        or 'http'
-        self.method = http_request.typestr
+    def __init__(self, environ):
+        self._headers = environ['headers']
 
-        self.uri = http_request.uri
+        self.protocol = self.header('x-forwarded-proto') or \
+                        environ['wsgi.url_scheme'] or 'http'
 
-        path = urlparse.urlparse(self.uri)
-        self.path = path.path
-
-        self._headers = {}
-        self.headers_dict = {}
-        for name, value in http_request.get_input_headers():
-            self._headers[name.lower()] = value
-            self.headers_dict[name] = value
-
-        self.host = self.header('Host')
+        self.host = environ['HTTP_HOST']
+        self.method = environ['REQUEST_METHOD'].upper()
+        self.path = environ['PATH_INFO']
 
         self.remote_host = self.header('X-Forwarded-For') or \
-                           http_request.remote_host
-        self.remote_port = http_request.remote_port
+                           environ['REMOTE_ADDR']
+        try:
+            self.remote_port = int(environ['REMOTE_PORT'])
+        except (TypeError, ValueError):
+            self.remote_port = None
 
-        self.user_agent = self.header('User-Agent')
+        self.user_agent = environ['HTTP_USER_AGENT']
 
-        self.referer = self.header('Referer')
+        self.referer = environ['HTTP_REFERER'] if 'HTTP_REFERER' in environ else ''
         self.is_xhr = self.header('X-Requested-With') == 'XMLHttpRequest'
 
         self._args = {}
         self._files = {}
 
+        self.query_string = environ['QUERY_STRING']
+
         if self.method in ('GET', 'HEAD'):
-            self._args = urlparse.parse_qs(path.query)
+            self._args = urlparse.parse_qs(environ['QUERY_STRING'])
 
         elif self.method in ('POST', 'PUT', 'DELETE'):
-            ctype = http_request.find_input_header('Content-Type')
-            clen = http_request.find_input_header('Content-Length')
+            ctype = self.header('Content-Type')
 
             if not ctype or ctype.startswith('application/x-www-form-urlencoded'):
-                _buf = http_request.input_buffer.read(-1)
+                _buf = environ['wsgi.input'].read()
                 self._args = urlparse.parse_qs(_buf)
 
             elif ctype.startswith('multipart/form-data'):
-                form = FieldStorage(fp=http_request.input_buffer,
-                                    environ={
-                                        'REQUEST_METHOD': self.method,
-                                        'CONTENT_TYPE': ctype,
-                                        'CONTENT_LENGTH': clen
-                                    }, keep_blank_values=True)
+                form = FieldStorage(fp=environ['wsgi.input'],
+                                    environ=environ,
+                                    keep_blank_values=True)
 
                 for field in form.list:
                     try:
@@ -115,6 +115,12 @@ class Request(object):
         self._cookies = Cookie(self.header('Cookie'))
         for c, v in self._cookies.iteritems():
             log.debug('Cookie: %s=%s' % (c, v.value))
+
+    def __str__(self):
+        uri = '%s?%s' % (self.path, self.query_string) \
+              if self.query_string else self.path
+
+        return '%s %s://%s%s' % (self.method, self.protocol, self.host, uri)
 
     def args(self, arg=None, default=None):
         if arg is None:
@@ -184,7 +190,7 @@ class Response(object):
         for c in self._cookies:
             out.append(self._cookies[c].output(header='').strip())
         if out:
-            log.debug('Set-Cookies: %s' % (out))
+            log.debug('Cookies: %s' % (out))
         return out
 
     def redirect(self, url=None):

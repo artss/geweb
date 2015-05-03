@@ -1,6 +1,7 @@
-.*\.pyc
-venv/
-.idea/
-dist/
-build/
-.*\.egg-info/
+*.pyc
+venv
+.vimrc
+.idea
+dist
+build
+*.egg-info

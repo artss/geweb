@@ -1,33 +1,27 @@
-import os, sys
-import gevent
-from gevent import monkey; monkey.patch_all()
-from gevent import http as ghttp
-from geweb.mail import mail
-
+import sys
 import settings
-
 try:
     sys.path.extend(settings.libs)
 except AttributeError:
     pass
 
+import gevent
+from gevent import monkey; monkey.patch_all()
+from gevent.pool import Pool
+from gevent.wsgi import WSGIServer
+from setproctitle import setproctitle
 import inspect
 import traceback
-
 from time import time
 
 from geweb import log
-from geweb.http import Request, Response
+from geweb.http import Request, RequestHandler, Response
 from geweb.route import route
 from geweb.exceptions import HTTPError, InternalServerError
 from geweb.template import render, render_string, TemplateNotFound
-from geweb.env import env
-
-import settings
-
 from geweb.middleware import register_middleware, \
                              process_request, process_response
-from setproctitle import setproctitle
+from geweb.env import env
 
 try:
     if not isinstance(settings.middleware, (list, tuple)):
@@ -37,15 +31,9 @@ try:
 except AttributeError:
     pass
 
-def _handler(http_request):
-    """
-    HTTP request handler.
-    """
-
-    if settings.debug:
-        tm = time()
-
-    env.request = Request(http_request)
+def handle(environ, start_response):
+    tm = time()
+    env.request = Request(environ)
     process_request(env.request)
 
     code = None
@@ -100,58 +88,42 @@ def _handler(http_request):
         message = response.message
     process_response(response)
 
+    headers_out = []
+
     cookies = response.cookie_out()
     for c in cookies:
-        http_request.add_output_header('Set-Cookie', c)
+        headers_out.append(('Set-Cookie', str(c)))
 
     redirect = response.redirect()
     if redirect:
-        http_request.add_output_header('Location', redirect)
-        http_request.add_output_header("Content-Type", "text/plain")
-        http_request.send_reply(302, 'Moved Temporarily',
-                                str('redirect %s' % redirect))
+        headers_out.append(('Location', str(redirect)))
+        headers_out.append(('Content-Type', 'text/plain'))
+        status = '302 Moved Temporarily'
+        #body = str('redirect %s' % redirect)
+        body = ''
     else:
-        http_request.add_output_header("Content-Type", response.mimetype)
+        headers_out.append(("Content-Type", response.mimetype))
         if isinstance(response.body, unicode):
             response.body = response.body.encode('utf-8')
-        http_request.send_reply(code, message, response.body)
+        status = '%d %s' % (code, message)
+        body = response.body
 
     if settings.debug:
         tm = round(time() - tm, 4)
     else:
         tm = ''
 
-    log.info('%s %s %s %d %s' % (tm, env.request.remote_host,
-                              env.request.method, code, env.request.uri))
+    log.info('[%s] %d %s' % (tm, code, env.request))
+
+    start_response(status, headers_out)
+    return [body]
 
 def run_server(host=None, port=None, workers=None, debug=None,
                logfile=None, stdout=None, loglevel=None):
-    """
-    Start the HTTP server.
-    Optional arguments, which override settings:
-    host - host (IP address) to listen
-    port - port number to listen
-    worker - number of worker processes
-    debug - debug mode
-    logfile - path to log file
-    stdout - write log to stdout instead of log file
-    loglevel - log level
-    """
-
-    if stdout:
-        settings.logfile = None
-    elif logfile:
-        settings.logfile = logfile
-
-    if loglevel:
-        settings.loglevel = loglevel
-
-    log.init()
-
-    if host is not None:
-        settings.server_host = host
-    if port is not None:
-        settings.server_port = port
+    if not host:
+        host = settings.server_host
+    if not port:
+        port = settings.server_port
 
     if workers is not None:
         settings.workers = workers
@@ -165,23 +137,17 @@ def run_server(host=None, port=None, workers=None, debug=None,
         proctitle = 'geweb'
     setproctitle(proctitle)
 
-    log.info('Starting HTTP server at %s:%d' % \
-             (settings.server_host, settings.server_port))
+    log.info('Starting HTTP server at %s:%d' % (host, port))
 
-    httpd = ghttp.HTTPServer((settings.server_host, settings.server_port),
-                             lambda req: gevent.spawn(_handler, req))
-    httpd.pre_start()
+    pool = Pool(10000)
+    server = WSGIServer("%s:%s" % (host, port), handle,
+                        handler_class=RequestHandler, spawn=pool)
+    server.init_socket()
 
     for i in xrange(settings.workers - 1):
         pid = gevent.fork()
         if pid == 0:
             break
 
-    try:
-        log.info('Starting worker PID=%d' % os.getpid())
-        httpd.serve_forever()
-    except Exception, e:
-        log.error('%s: %s' % (e.__class__.__name__, str(e)))
-        httpd.stop()
-        log.error('Worker PID=%d is stopped' % os.getpid())
+    server.serve_forever()
 
