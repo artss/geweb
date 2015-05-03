@@ -1,5 +1,6 @@
 from geweb import log
 from geweb.exceptions import NotFound
+from fnmatch import fnmatch
 
 try:
     import re2 as re
@@ -11,8 +12,10 @@ import settings
 routes = []
 
 # route decorator
-def route(fn):
-    pass
+def route(pattern, methods=None, host=None):
+    def wrapper(view):
+        routes.append(R(pattern, view, methods=methods, host=host))
+    return wrapper
 
 def resolve(request):
     if not routes:
@@ -31,7 +34,7 @@ def welcome():
     return render('geweb/welcome.html')
 
 class R(object):
-    def __init__(self, pattern, view, methods=None, subdomain=None):
+    def __init__(self, pattern, view, methods=None, host=None):
         self.pattern = re.compile(pattern)
 
         if methods:
@@ -41,10 +44,15 @@ class R(object):
         else:
             self.methods = None
 
+        self.host = host
+
         self.view = view
 
     def resolve(self, request):
         if self.methods and request.method.upper() not in self.methods:
+            raise R.NotMatched
+
+        if self.host and not fnmatch(request.host, self.host):
             raise R.NotMatched
 
         m = re.match(self.pattern, request.path)
