@@ -2,7 +2,6 @@ import os
 from jinja2 import Environment, PrefixLoader, FileSystemLoader
 from jinja2 import TemplateNotFound
 
-from geweb.http import Response
 from geweb.template.filters import filters
 
 from geweb.env import env
@@ -39,7 +38,7 @@ jinja_env = Environment(loader=PrefixLoader(_loaders),
 for name, fn in filters.iteritems():
     jinja_env.filters[name] = fn
 
-def render_string(names, **context):
+def render(names, **context):
     """
     Render a string from template.
 
@@ -59,13 +58,4 @@ def render_string(names, **context):
             continue
 
     raise TemplateNotFound('')
-
-def render(names, mimetype='text/html', **context):
-    """
-    Render HTTP response from template.
-
-    Usage:
-    response = render('template.html', var1='value 1', var2='value 2')
-    """
-    return Response(render_string(names, **context), mimetype=mimetype)
 

@@ -4,7 +4,7 @@ from time import time
 from datetime import datetime, timedelta
 
 from geweb.env import env
-from geweb.middleware import Middleware, register_middleware
+from geweb.middleware import Middleware
 
 import settings
 

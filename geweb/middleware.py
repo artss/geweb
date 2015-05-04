@@ -1,3 +1,5 @@
+from geweb import log
+
 _middleware = {}
 
 class MiddlewareError(Exception):
@@ -16,6 +18,9 @@ def register_middleware(middleware):
             return
     except KeyError:
         pass
+
+    log.debug('Importing %s middleware', middleware)
+
     if isinstance(middleware, (str, unicode)):
         module, cls = middleware.rsplit('.', 1)
         try:
@@ -23,7 +28,7 @@ def register_middleware(middleware):
             cls = getattr(module, cls)
         except (ImportError, AttributeError), e:
             print e
-            raise MiddlewareError('----%s: %s' % (middleware, str(e)))
+            raise MiddlewareError('%s: %s' % (middleware, e))
     else:
         cls = middleware
         middleware = middleware.__name__

@@ -17,8 +17,9 @@ from time import time
 from geweb import log
 from geweb.http import Request, RequestHandler, Response
 from geweb.route import resolve
-from geweb.exceptions import GewebError, HTTPError, InternalServerError
-from geweb.template import render, render_string, TemplateNotFound
+from geweb.exceptions import GewebError, InternalServerError
+from geweb.template import render, TemplateNotFound
+from geweb.mail import mail
 from geweb.middleware import register_middleware, \
                              process_request, process_response
 from geweb.env import env
@@ -47,7 +48,7 @@ def handle(environ, start_response):
         message = e.message
 
         try:
-            response = render(['/errors/%s.html' % e.__class__.__name__,
+            response = Response(template=['/errors/%s.html' % e.__class__.__name__,
                                '/%d.html' % code, '/50x.html',
                                'geweb/50x.html'],
                               code=code, message=message)
@@ -66,7 +67,7 @@ def handle(environ, start_response):
         log.error("%s: %s" % (code, trace))
 
         subject = 'Error at %s: %s' % (settings.domain, e.__class__.__name__)
-        body = render_string('geweb/report.html',
+        body = render('geweb/report.html',
                 code=code, message=message,
                 protocol=env.request.protocol, host=env.request.host,
                 uri=env.request.uri, method=env.request.method,
@@ -106,10 +107,10 @@ def handle(environ, start_response):
         body = ''
     else:
         headers_out.append(("Content-Type", response.mimetype))
-        if isinstance(response.body, unicode):
-            response.body = response.body.encode('utf-8')
         status = '%d %s' % (code, message)
-        body = response.body
+        body = response.render()
+        if isinstance(body, unicode):
+            body = body.encode('utf-8')
 
     if settings.debug:
         tm = round(time() - tm, 4)

@@ -8,7 +8,7 @@ from hashlib import md5
 from gevent.wsgi import WSGIHandler
 
 from geweb import log
-from geweb.env import env
+from geweb.template import render
 
 import settings
 
@@ -155,12 +155,15 @@ class Request(object):
 
 class Response(object):
 
-    def __init__(self, body='', code=200, message='OK', mimetype='text/html',
-                       redirect=None, headers={}):
+    def __init__(self, body='', template=None,
+                       code=200, message='OK', mimetype='text/html',
+                       redirect=None, headers={}, **kwargs):
+        self.body = body
+        self.template = template
+        self.data = kwargs
         self.code = code
         self.message = message
         self.mimetype = mimetype
-        self.body = body
         self._headers = headers
         self._cookies = Cookie()
 
@@ -200,4 +203,11 @@ class Response(object):
         if url is None:
             return self._redirect
         self._redirect = url
+
+    def render(self):
+        if not self.template:
+            return self.body
+
+        self.body = render(self.template, **self.data)
+        return self.body
 
