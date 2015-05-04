@@ -36,7 +36,7 @@ def welcome():
 # route instance
 class R(object):
     def __init__(self, pattern, view, methods=None, host=None):
-        self.pattern = re.compile(pattern)
+        self.pattern = re.compile(r'^%s$' % pattern)
 
         if methods:
             if not isinstance(methods, (list, tuple)):
