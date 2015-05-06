@@ -15,7 +15,7 @@ import traceback
 from time import time
 
 from geweb import log
-from geweb.http import Request, RequestHandler, Response
+from geweb.http import Request, Response
 from geweb.route import resolve
 from geweb.exceptions import GewebError, InternalServerError
 from geweb.template import render, TemplateNotFound
@@ -144,8 +144,7 @@ def run_server(host=None, port=None, workers=None, debug=None,
     log.info('Starting HTTP server at %s:%d' % (host, port))
 
     pool = Pool(10000)
-    server = WSGIServer("%s:%s" % (host, port), handle,
-                        handler_class=RequestHandler, spawn=pool)
+    server = WSGIServer("%s:%s" % (host, port), handle, spawn=pool)
     server.init_socket()
 
     for i in xrange(settings.workers - 1):

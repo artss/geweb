@@ -12,16 +12,11 @@ from geweb.template import render
 
 import settings
 
-class RequestHandler(WSGIHandler):
-    def get_environ(self):
-        environ = super(RequestHandler, self).get_environ()
-        environ['headers'] = dict(self.headers)
-        return environ
-
 class Request(object):
-
     def __init__(self, environ):
-        self._headers = environ['headers']
+        self._headers = { h[5:].lower().replace('_', '-'): val \
+                          for h, val in environ.iteritems() \
+                          if h.startswith('HTTP_') }
 
         self.protocol = self.header('x-forwarded-proto') or \
                         environ['wsgi.url_scheme'] or 'http'
@@ -154,7 +149,6 @@ class Request(object):
             return default
 
 class Response(object):
-
     def __init__(self, body='', template=None,
                        code=200, message='OK', mimetype='text/html',
                        redirect=None, headers={}, **kwargs):
