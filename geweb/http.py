@@ -5,7 +5,6 @@ from Cookie import Cookie
 from datetime import datetime, timedelta
 import time
 from hashlib import md5
-from gevent.wsgi import WSGIHandler
 
 from geweb import log
 from geweb.template import render
