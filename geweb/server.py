@@ -92,7 +92,8 @@ def handle(environ, start_response):
         message = response.message
     process_response(response)
 
-    status, headers, body = response.render()
+    status, headers = response.render_headers()
+    body = response.render()
 
     if isinstance(body, unicode):
         body = body.encode('utf-8')

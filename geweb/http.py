@@ -191,7 +191,7 @@ class Response(object):
         self.message = 'Moved Temporarily'
         self._redirect = url
 
-    def render(self):
+    def render_headers(self):
         if not self.template:
             return self.body
 
@@ -208,6 +208,9 @@ class Response(object):
             headers.append(('Set-Cookie',
                             str(self._cookies[c].output(header='').strip())))
 
+        return status, headers
+
+    def render(self):
         self.body = render(self.template, **self.data)
-        return status, headers, self.body
+        return self.body
 
