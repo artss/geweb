@@ -92,25 +92,10 @@ def handle(environ, start_response):
         message = response.message
     process_response(response)
 
-    headers_out = []
+    status, headers, body = response.render()
 
-    cookies = response.cookie_out()
-    for c in cookies:
-        headers_out.append(('Set-Cookie', str(c)))
-
-    redirect = response.redirect()
-    if redirect:
-        headers_out.append(('Location', str(redirect)))
-        headers_out.append(('Content-Type', 'text/plain'))
-        status = '302 Moved Temporarily'
-        #body = str('redirect %s' % redirect)
-        body = ''
-    else:
-        headers_out.append(("Content-Type", response.mimetype))
-        status = '%d %s' % (code, message)
-        body = response.render()
-        if isinstance(body, unicode):
-            body = body.encode('utf-8')
+    if isinstance(body, unicode):
+        body = body.encode('utf-8')
 
     if settings.debug:
         tm = round(time() - tm, 4)
@@ -119,7 +104,7 @@ def handle(environ, start_response):
 
     log.info('[%s] %d %s' % (tm, code, env.request))
 
-    start_response(status, headers_out)
+    start_response(status, headers)
     return [body]
 
 def run_server(host=None, port=None, workers=None, debug=None,

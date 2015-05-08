@@ -184,23 +184,30 @@ class Response(object):
         self.set_cookie(name, '', domain=domain, path=path,
                                   expires=datetime.now()-timedelta(days=30))
 
-    def cookie_out(self):
-        out = []
-        for c in self._cookies:
-            out.append(self._cookies[c].output(header='').strip())
-        if out:
-            log.debug('Cookies: %s' % (out))
-        return out
-
     def redirect(self, url=None):
         if url is None:
             return self._redirect
+        self.code = 302
+        self.message = 'Moved Temporarily'
         self._redirect = url
 
     def render(self):
         if not self.template:
             return self.body
 
+        status = '%d %s' % (self.code, self.message)
+
+        self.header('Content-Type', self.mimetype)
+
+        headers = []
+
+        for h, val in self._headers.iteritems():
+            headers.append((h, val))
+
+        for c in self._cookies:
+            headers.append(('Set-Cookie',
+                            str(self._cookies[c].output(header='').strip())))
+
         self.body = render(self.template, **self.data)
-        return self.body
+        return status, headers, self.body
 
