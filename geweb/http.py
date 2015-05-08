@@ -187,13 +187,14 @@ class Response(object):
     def redirect(self, url=None):
         if url is None:
             return self._redirect
-        self.code = 302
-        self.message = 'Moved Temporarily'
         self._redirect = url
 
+
     def render_headers(self):
-        if not self.template:
-            return self.body
+        if self._redirect:
+            self.code = 302
+            self.message = 'Moved Temporarily'
+            self.header('Location', str(self._redirect))
 
         status = '%d %s' % (self.code, self.message)
 
@@ -211,6 +212,9 @@ class Response(object):
         return status, headers
 
     def render(self):
+        if not self.template:
+            return self.body
+
         self.body = render(self.template, **self.data)
         return self.body
 
