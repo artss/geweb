@@ -1,9 +1,9 @@
-Geweb is an asyncronous python/gevent web framework.
+Geweb is an asyncronous micro web framework based on gevent.
 
 Installation
 ------------
 
-    pip install hg+https://bitbucket.org/arts/geweb
+    pip install geweb
 
 Create project
 --------------
