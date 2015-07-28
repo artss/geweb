@@ -84,6 +84,10 @@ class Session(object):
         """
         Save session data.
         """
+
+        if not self._data:
+            return
+
         if not self.sessid:
             self.new()
         self.backend.save(self._data)
