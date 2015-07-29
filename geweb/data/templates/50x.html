@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{{ response.code }} {{ response.message }}</title>
+        <title>{{ error.code }} {{ error.message }}</title>
         <style>
             body { font: .8em/1.5 Arial, Tahoma, "Helvetica Neue", sans-serif; color: #444444; background-color: #fffedd; }
             pre { border: dashed 1px #dddcbb; padding: 0.5em;}
@@ -11,6 +11,6 @@
         </style>
     </head>
     <body>
-        <h1>{{ response.code }} {{ response.message }}</h1>
+        <h1>{{ error.code }} {{ error.message }}</h1>
     </body>
 </html>

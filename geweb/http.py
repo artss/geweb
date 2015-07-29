@@ -215,6 +215,6 @@ class Response(object):
         if not self.template:
             return self.body
 
-        self.body = render(self.template, response=self, **self.data)
+        self.body = render(self.template, **self.data)
         return self.body
 
