@@ -48,10 +48,11 @@ def handle(environ, start_response):
         message = e.message
 
         try:
-            response = Response(template=['/errors/%s.html' % e.__class__.__name__,
-                               '/%d.html' % code, '/50x.html',
-                               'geweb/50x.html'],
-                               error=e)
+            response = Response(code=code, message=message,
+                                template=['/errors/%s.html' % e.__class__.__name__,
+                                '/%d.html' % code, '/50x.html',
+                                'geweb/50x.html'],
+                                error=e)
         except TemplateNotFound, e:
             response = 'No error template found'
 
