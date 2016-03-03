@@ -31,7 +31,16 @@ for appname in settings.apps:
     except AttributeError:
         pass
 
-jinja_env = Environment(loader=PrefixLoader(_loaders),
+class RelEnvironment(Environment):
+    """Override join_path() to enable relative template paths."""
+    def join_path(self, template, parent):
+        if template.startswith('/'):
+            return template
+
+        return os.path.normpath(
+                os.path.join('/', os.path.dirname(parent), template))
+
+jinja_env = RelEnvironment(loader=PrefixLoader(_loaders),
                         autoescape=True, cache_size=-1,
                         extensions=['jinja2.ext.loopcontrols'])
 
@@ -50,12 +59,12 @@ def render(names, **context):
 
     for name in names:
         try:
-            tmpl = jinja_env.get_template(name)
+            tmpl = jinja_env.get_template(os.path.join(settings.template_path, name))
             return tmpl.render(context, settings=settings, env=env,
                                __now__=datetime.now(),
                                csrf_token=csrf_token)
         except TemplateNotFound:
             continue
 
-    raise TemplateNotFound('')
+    raise TemplateNotFound(str(names))
 
