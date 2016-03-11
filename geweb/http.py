@@ -48,7 +48,7 @@ class Request(object):
             self._args = urlparse.parse_qs(environ['QUERY_STRING'])
 
         elif self.method in ('POST', 'PUT', 'DELETE'):
-            ctype = self.header('Content-Type')
+            ctype = self.header('Content-Type') or environ['CONTENT_TYPE']
 
             if not ctype or ctype.startswith('application/x-www-form-urlencoded'):
                 _buf = environ['wsgi.input'].read()
