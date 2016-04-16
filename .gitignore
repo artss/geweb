@@ -1,6 +1,6 @@
-.*\.pyc
+*.pyc
 venv/
 .idea/
 dist/
 build/
-.*\.egg-info/
+*.egg-info/
